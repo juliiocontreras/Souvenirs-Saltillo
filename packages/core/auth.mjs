@@ -1,0 +1,1 @@
+import crypto from "node:crypto";export function timingSafePasswordMatch(input,expected){const a=Buffer.from(String(input));const b=Buffer.from(String(expected));if(a.length!==b.length)return false;return crypto.timingSafeEqual(a,b);}export function sessionToken(secret){return crypto.createHmac("sha256",secret).update("souvenirs-saltillo-admin").digest("hex");}
