@@ -1,0 +1,1 @@
+{"name":"souvenirs-saltillo","private":true,"version":"0.1.0","scripts":{"test":"node --test tests/*.test.mjs","dev":"next dev","build":"next build","start":"next start","monitor:suppliers":"node scripts/monitor-suppliers.mjs"},"dependencies":{"next":"^15.5.0","react":"^19.1.0","react-dom":"^19.1.0"},"devDependencies":{}}
