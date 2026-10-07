@@ -1,0 +1,1 @@
+export function classifySupplierCheck(observed,previousPrice){if(!observed?.ok)return{status:"broken",observedPrice:null};const price=Number(observed.price);if(Number.isFinite(price)&&Number.isFinite(Number(previousPrice))&&price!==Number(previousPrice))return{status:"changed",observedPrice:price};return{status:"ok",observedPrice:Number.isFinite(price)?price:null}}
