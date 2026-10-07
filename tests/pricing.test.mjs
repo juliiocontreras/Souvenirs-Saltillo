@@ -1,0 +1,1 @@
+import test from "node:test";import assert from "node:assert/strict";import {suggestPrice} from "../packages/core/pricing.mjs";test("suggests price from cost and configurable margin",()=>{assert.equal(suggestPrice(100,40),167)});test("rejects invalid margin",()=>{assert.throws(()=>suggestPrice(100,100))});
