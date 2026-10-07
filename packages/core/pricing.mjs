@@ -1,0 +1,1 @@
+export function suggestPrice(cost,marginPercent=40){const c=Number(cost),m=Number(marginPercent);if(!Number.isFinite(c)||c<0)throw new Error("Invalid cost");if(!Number.isFinite(m)||m<0||m>=100)throw new Error("Margin must be between 0 and 99.99");return Math.ceil(c/(1-m/100));}
