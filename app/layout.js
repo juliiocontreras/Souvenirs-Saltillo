@@ -1,0 +1,1 @@
+import "./globals.css";export const metadata={title:"Souvenirs Saltillo",description:"Souvenirs y artículos personalizados en Saltillo"};export default function Layout({children}){return <html lang="es"><body>{children}</body></html>}
