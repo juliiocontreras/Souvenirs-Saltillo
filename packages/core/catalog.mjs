@@ -1,0 +1,1 @@
+export function toPublicProduct(p){return{id:p.id,slug:p.slug,title:p.title,description:p.description,publicPrice:p.publicPrice,images:p.images||[],deliveryDays:p.deliveryDays,personalizationSupported:Boolean(p.personalizationSupported),stockStatus:p.stockStatus||"unknown"}}export function findAlternativeQuery(p){return String(p.gtin||p.mpn||p.sku||p.title||"").trim()}
