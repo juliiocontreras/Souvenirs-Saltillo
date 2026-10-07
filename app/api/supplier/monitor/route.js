@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server";export async function POST(req){if(req.headers.get("authorization")!==`Bearer ${process.env.MONITOR_SECRET}`)return NextResponse.json({error:"Unauthorized"},{status:401});return NextResponse.json({ok:true,status:"monitor-ready",note:"Persistence adapter required before live product checks can execute."})}
