@@ -1,0 +1,1 @@
+import test from "node:test";import assert from "node:assert/strict";import {timingSafePasswordMatch} from "../packages/core/auth.mjs";test("accepts the configured admin password",()=>assert.equal(timingSafePasswordMatch("secreto","secreto"),true));test("rejects a different password",()=>assert.equal(timingSafePasswordMatch("otro","secreto"),false));
