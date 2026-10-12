@@ -1,0 +1,65 @@
+# Primer despliegue de Souvenirs Saltillo
+
+El repositorio integra tienda, login, panel y bot en una aplicación Next.js. No se ha publicado un sitio ni se han configurado credenciales de producción desde esta sesión.
+
+## Desarrollo local
+
+1. `npm ci` con Node 22.19 o posterior.
+2. Copiar `.env.example` a `.env.local` y configurar `ADMIN_PASSWORD` (al menos 12 caracteres), `AUTH_SECRET` (al menos 32 caracteres independientes) y `MONITOR_SECRET` (al menos 32 caracteres independientes).
+3. Usar `APP_ORIGIN=http://localhost:3000` y ejecutar `npm run dev`. Abrir el mismo origen en el navegador.
+4. Acceder a `/login`, importar una URL y revisar la ficha. Datos ausentes quedan pendientes; aprobar y publicar solo después de confirmar condiciones. La tienda muestra exclusivamente productos publicados.
+
+Sin `DATABASE_URL`, desarrollo conserva catálogo, sesiones e historial en `.data/catalog.json`, con escritura atómica y lock entre procesos. No guardar ese archivo en Git ni compartirlo como evidencia. Para migrar datos locales a PostgreSQL debe ejecutarse una migración revisada; configurar la base no copia datos automáticamente.
+
+## Hosting de Next.js
+
+La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
+
+Variables del servidor:
+
+| Variable | Uso |
+| --- | --- |
+| `DATABASE_URL` | Base PostgreSQL del proyecto, con el modo SSL verificado indicado por el proveedor. Nunca en una variable `NEXT_PUBLIC_*`. |
+| `APP_ORIGIN` | Origen HTTPS real del panel, sin ruta ni barra final. Todas las escrituras de navegador verifican `Origin`. |
+| `ADMIN_PASSWORD` | Contraseña de administración, de al menos 12 caracteres. |
+| `AUTH_SECRET` | Secreto aleatorio independiente de al menos 32 caracteres para firmar sesiones. |
+| `MONITOR_SECRET` | Secreto independiente de al menos 32 caracteres para el scheduler. |
+| `DEFAULT_MARGIN_PERCENT` | Margen bruto inicial editable; predeterminado 40, no markup sobre el costo. |
+| `SEARCH_PROVIDER` | `brave` para activar búsqueda automática, opcional. |
+| `SEARCH_API_KEY` | Clave de Brave Search, opcional y solo en servidor. |
+| `MONITOR_BATCH_SIZE` | Enlaces por lote, predeterminado 2 y máximo 5. |
+
+El adaptador crea `souvenirs_catalog_records` en la base del proyecto. El rol del servidor necesita permisos para crear esa tabla inicialmente y operar sus registros. Ver `database-schema.sql`. El pool, los locks transaccionales y las consultas quedan exclusivamente en servidor.
+
+Para un servidor Node con volumen durable, `CATALOG_DATA_FILE` puede sustituir a PostgreSQL. En producción, si falta tanto PostgreSQL como un archivo explícito, las operaciones no empiezan a guardar datos en memoria ni en un disco temporal de forma silenciosa.
+
+Usar HTTPS para cookies `Secure`. Rotar `ADMIN_PASSWORD` o `AUTH_SECRET` invalida las sesiones previas. Cerrar sesión elimina el registro persistente y bloquea reutilizar el mismo token.
+
+## Monitoreo cada cuatro horas
+
+Una vez que el sitio y la base funcionen, configurar estos **secrets del repositorio** en GitHub → Settings → Secrets and variables → Actions:
+
+- `MONITOR_URL`: `https://<tu-origen>/api/supplier/monitor`.
+- `MONITOR_SECRET`: exactamente el mismo secreto del servidor.
+
+El workflow `Supplier monitor` ya apunta al endpoint implementado. Programa `17 */4 * * *` en UTC: **02:17, 06:17, 10:17, 14:17, 18:17 y 22:17 en Saltillo/Ciudad de México**. GitHub puede retrasar una ejecución; los timestamps pendientes y los resultados quedan en la base.
+
+El workflow procesa lotes hasta terminar, con límite de 30 minutos/100 lotes y reporte de pendientes. La ruta necesita hasta 300 segundos por solicitud. El hosting debe permitir ese tiempo; algunos planes requieren ajustar lotes o usar un worker persistente. No se anuncia monitoreo activo solo porque haya un cron en el repositorio.
+
+Ejecutar primero `workflow_dispatch` desde Actions. Verificar que se complete y que el panel muestre una ejecución real. El monitor revisa enlaces principales y alternativas, conserva los datos aprobados y registra observaciones. Cambios de precio, contenido, entrega o moneda se aprueban mediante reimportación; ningún proveedor se sustituye automáticamente.
+
+Después de comprobar esa ejecución, configurar la variable de repositorio **`MONITOR_ENABLED=true`** en Actions. Las ejecuciones programadas se omiten mientras no se active esa variable; el disparo manual sigue disponible para verificar el primer despliegue.
+
+Como alternativa al workflow, usar `npm run monitor:suppliers` desde un cron o job del mismo hosting con la misma base y variables. `npm run monitor:suppliers -- --force` solicita revisión inmediata. No configurar dos schedulers deliberadamente: el lease evita solapamientos, pero conviene una sola programación.
+
+## Límites y validación con proveedores reales
+
+- El bot determinista usa JSON-LD y Open Graph. Páginas con JavaScript obligatorio, CAPTCHA o login necesitan API/feed o un adaptador autorizado; no se eluden controles del proveedor.
+- Verifica HTTP/HTTPS públicos, IPv4/IPv6, DNS, redirecciones, tiempos, tamaños y `robots.txt`. En salida directa fija la IP resuelta; cuando se usa un proxy confiable, ese proxy también debe bloquear destinos privados y cambios de DNS. Conserva TLS y no reenvía claves de búsqueda por redirecciones.
+- Imágenes se aplican como URLs. Verificar permiso y funcionamiento del hotlink; alojar copias requiere conectar almacenamiento permanente. No se han añadido archivos ni credenciales del proveedor al repositorio.
+- Precio y moneda ausentes no se convierten en cero ni se infieren como MXN. Entrega ausente permanece pendiente; no se convierten divisas. El cálculo incluye costo unitario, flete, comisiones e impuesto configurados.
+- Alternativas se verifican por identificadores publicados (GTIN o marca/modelo y variante). Es una coincidencia de ficha, no una garantía de legitimidad del vendedor. Homologar cantidades, unidad, moneda, envío e impuestos antes de comparar costos.
+- Si faltan identificadores, el administrador puede confirmar expresamente que la ficha corresponde al mismo artículo y abrir la vista previa. Un GTIN que contradiga al original bloquea la sustitución incluso con confirmación manual.
+- No se implementó checkout, recepción de logos ni recuperación de contraseña. El catálogo evita anunciar esos flujos como si estuvieran disponibles.
+
+El despliegue y la programación requieren el hosting, la base y los secretos anteriores. La integración de código puede revisarse y probarse antes de configurar cualquiera de ellos.

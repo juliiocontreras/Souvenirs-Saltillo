@@ -1,1 +1,35 @@
-import {NextResponse} from "next/server";import {scrapeSupplierUrl} from "../../../../lib/supplier-scraper.mjs";import {suggestPrice} from "../../../../packages/core/pricing.mjs";import {sessionToken} from "../../../../packages/core/auth.mjs";export async function GET(req){const token=req.cookies.get("ss_admin")?.value;const expected=sessionToken(process.env.AUTH_SECRET||process.env.ADMIN_PASSWORD||"unset");if(token!==expected)return NextResponse.json({error:"Unauthorized"},{status:401});try{const url=new URL(req.url).searchParams.get("url");const product=await scrapeSupplierUrl(url);const margin=Number(process.env.DEFAULT_MARGIN_PERCENT||40);return NextResponse.json({status:"preview",product:{...product,suggestedPrice:suggestPrice(product.supplierCost,margin)},message:"Revisa y aprueba antes de publicar."});}catch(e){return NextResponse.json({error:e.message},{status:400})}}
+import { NextResponse } from "next/server";
+import {
+  requireAdmin,
+  jsonBody,
+  ApiError,
+} from "../../../../lib/admin-auth.mjs";
+import { apiError } from "../../../../lib/api-response.mjs";
+import { catalogRepository } from "../../../../lib/catalog-store.mjs";
+import { createImport } from "../../../../lib/catalog-service.mjs";
+export const maxDuration = 120;
+export async function POST(request) {
+  let locked = false;
+  const owner = crypto.randomUUID();
+  try {
+    await requireAdmin(request, { write: true });
+    const { url } = await jsonBody(request);
+    locked = await catalogRepository.acquireLease(
+      "supplier-import",
+      owner,
+      120000,
+    );
+    if (!locked)
+      throw new ApiError(
+        "Hay otra importación en curso. Espera a que termine.",
+        409,
+      );
+    return NextResponse.json({
+      draft: await createImport(catalogRepository, url),
+    });
+  } catch (error) {
+    return apiError(error);
+  } finally {
+    if (locked) await catalogRepository.releaseLease("supplier-import", owner);
+  }
+}

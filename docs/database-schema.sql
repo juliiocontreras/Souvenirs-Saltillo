@@ -1,5 +1,22 @@
-create table if not exists products (id text primary key,slug text unique,title text not null,description text default '',public_price numeric,supplier_cost numeric,supplier_name text,supplier_url text,sku text,mpn text,gtin text,delivery_days integer,images jsonb default '[]',personalization_supported boolean default false,stock_status text default 'unknown',source_status text default 'unknown',source_last_checked_at timestamptz,created_at timestamptz default now(),updated_at timestamptz default now());
-create table if not exists supplier_checks (id bigserial primary key,product_id text references products(id) on delete cascade,status text not null,observed_price numeric,delivery_days integer,checked_at timestamptz default now(),details jsonb default '{}');
-create table if not exists supplier_alternatives (id bigserial primary key,product_id text references products(id) on delete cascade,url text not null,supplier_name text,observed_price numeric,delivery_days integer,confidence numeric,status text default 'candidate',checked_at timestamptz default now());
-create index if not exists supplier_checks_product_time on supplier_checks(product_id,checked_at desc);
-create index if not exists supplier_alternatives_product on supplier_alternatives(product_id);
+-- Runtime PostgreSQL schema. Server-side only; never grant public/anonymous access.
+-- Each entity is a separate record. Repository mutations serialize with a
+-- transaction-level advisory lock and write only changed records.
+create table if not exists souvenirs_catalog_records (
+  namespace text not null,
+  key text not null,
+  data jsonb not null,
+  primary key (namespace, key)
+);
+
+-- Namespaces: products, checks, alternatives, drafts, sessions, attempts, runs, leases.
+-- products: full private product; API projects only approved public fields.
+-- checks: up to 200 observations per product, approved values remain separate.
+-- alternatives: up to 20 candidates per product with identity and health status.
+-- drafts: latest 100 import previews; older imports can be fetched again.
+-- sessions: hashed signed token, expiry and credential version; deletion revokes token.
+-- attempts: admin login counter with expiry; no stored passwords.
+-- runs: latest 50 batches, status, counts, search results and pending sources.
+-- leases: monitor/import owner and expiry for concurrency control.
+
+-- This does not migrate any historical products/supplier_checks tables.
+-- If a previous deployment used a different schema, review an explicit migration.
