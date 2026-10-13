@@ -1,1 +1,44 @@
-import {NextResponse} from "next/server";import {catalogRepository} from "../../../lib/catalog-store.mjs";import {sessionToken} from "../../../packages/core/auth.mjs";function admin(req){return req.cookies.get("ss_admin")?.value===sessionToken(process.env.AUTH_SECRET||process.env.ADMIN_PASSWORD||"unset")}export async function GET(req){const mode=new URL(req.url).searchParams.get("scope");if(mode==="admin"){if(!admin(req))return NextResponse.json({error:"Unauthorized"},{status:401});return NextResponse.json({products:await catalogRepository.listProducts()})}return NextResponse.json({products:await catalogRepository.listPublicProducts()})}export async function POST(req){if(!admin(req))return NextResponse.json({error:"Unauthorized"},{status:401});const body=await req.json();const id=body.id||crypto.randomUUID();const product=await catalogRepository.saveProduct({...body,id});return NextResponse.json({product},{status:201})}
+import { NextResponse } from "next/server";
+import { catalogRepository } from "../../../lib/catalog-store.mjs";
+import { requireAdmin, jsonBody, ApiError } from "../../../lib/admin-auth.mjs";
+import { apiError } from "../../../lib/api-response.mjs";
+export const dynamic = "force-dynamic";
+export async function GET(request) {
+  try {
+    if (new URL(request.url).searchParams.get("scope") === "admin") {
+      await requireAdmin(request);
+      return NextResponse.json({
+        products: await catalogRepository.listProducts(),
+      });
+    }
+    return NextResponse.json({
+      products: await catalogRepository.listPublicProducts(),
+    });
+  } catch (error) {
+    return apiError(error);
+  }
+}
+export async function POST(request) {
+  try {
+    await requireAdmin(request, { write: true });
+    const body = await jsonBody(request),
+      product = await catalogRepository.getProduct(body.id);
+    if (!product)
+      throw new ApiError(
+        "Para crear un producto utiliza la vista previa de importación.",
+        400,
+      );
+    if (body.status !== "draft")
+      throw new ApiError(
+        "Solo se puede retirar un producto desde esta acción. Reimporta y revisa sus datos para publicarlo.",
+      );
+    return NextResponse.json({
+      product: await catalogRepository.saveProduct({
+        id: body.id,
+        status: "draft",
+      }),
+    });
+  } catch (error) {
+    return apiError(error);
+  }
+}

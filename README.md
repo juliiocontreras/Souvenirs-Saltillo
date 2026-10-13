@@ -1,29 +1,56 @@
 # Souvenirs Saltillo
 
-Tienda web/PWA para venta y personalización de souvenirs en Saltillo.
+Aplicación Next.js con catálogo público y panel administrativo para souvenirs y artículos personalizados. La integración de código incluye importación desde proveedores, persistencia y monitoreo; el primer despliegue y sus credenciales se configuran por separado.
 
-## Alcance
-- Catálogo, carrito y flujo de solicitud/compra.
-- Productos personalizables con recepción de logos e indicaciones.
-- Panel administrativo protegido.
-- Gestión de productos, categorías, precios y tiempos de entrega.
-- Datos internos de proveedor nunca visibles al público.
-- Importación asistida desde URL de proveedor.
-- Costo de proveedor, margen configurable y precio sugerido.
-- Monitoreo periódico de URLs de proveedor y detección de enlaces rotos/cambios.
-- Proveedores alternativos sujetos a aprobación del administrador.
-- Bot de atención para producto, fecha requerida, dirección y facturación.
-- Trazabilidad de pedidos y personalización.
+## Lo implementado
 
-## Arquitectura prevista
-- `apps/storefront`: tienda pública / PWA.
-- `apps/admin`: panel administrativo.
-- `services/supplier-agent`: importación y monitoreo de proveedores.
-- `packages/core`: tipos, reglas de precios y lógica compartida.
-- `docs`: arquitectura, modelo de datos y decisiones.
+- `/`: catálogo de productos aprobados, imágenes, precio, entrega, búsqueda y categorías.
+- `/login` y `/admin`: sesión protegida, revocable y con expiración; errores de acceso y cierre de sesión.
+- Importación por URL con JSON-LD o metadatos: título, descripción, imágenes, costo, moneda, entrega publicada, identidad, variantes y evidencia. Los campos ausentes quedan pendientes.
+- Vista previa editable, precio sugerido con margen bruto/flete/comisiones/impuesto, precio manual, borrador y aprobación antes de publicar.
+- Catálogo, sesiones y revisión persistentes en PostgreSQL. Para desarrollo o servidor con disco durable, adaptador de archivo con escritura atómica.
+- Worker por lotes con lease, historial de observaciones y diferencias entre fuente retirada, bloqueada, incompleta y fallo temporal.
+- Alternativas manuales y búsqueda opcional con Brave Search; selección verificada abre una nueva vista previa antes de cambiar el proveedor.
+- Workflow de GitHub Actions cada cuatro horas y comando `npm run monitor:suppliers`.
+- [Skill reutilizable](skills/supplier-catalog-agent/SKILL.md) para adaptar este flujo a otros proyectos.
 
-## Seguridad
-Este repositorio no debe contener contraseñas, tokens, claves API ni URLs privadas con credenciales. Usar variables de entorno.
+## Ejecutar
 
-## Estado
-Repositorio canónico creado para evitar que Souvenirs Saltillo se mezcle con otros proyectos. La siguiente fase es migrar/implementar la tienda y automatización sobre esta base.
+Requiere Node **22.19 o posterior**.
+
+```bash
+npm ci
+# Copiar .env.example a .env.local y configurar contraseña, secretos y APP_ORIGIN.
+npm run dev
+```
+
+Abrir `http://localhost:3000`, con ese mismo valor en `APP_ORIGIN`. Nunca subir `.env.local`, el catálogo privado ni credenciales a Git.
+
+```bash
+npm test
+npm run build
+npm run monitor:suppliers -- --force
+```
+
+Las pruebas de PostgreSQL se activan con `TEST_DATABASE_URL` sobre una base **temporal exclusiva de pruebas**. CI levanta y elimina PostgreSQL automáticamente. La verificación de navegador opcional es `python3 scripts/ui-smoke.py`, con Playwright y Chromium en `/usr/bin/chromium`; usa credenciales temporales y fichas sintéticas servidas por HTTPbin. No se crean productos de demostración en la base del usuario.
+
+## Primer despliegue
+
+Seguir [docs/deployment.md](docs/deployment.md). Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Activar el workflow después de configurar el sitio y los secrets `MONITOR_URL` y `MONITOR_SECRET`. Los horarios se muestran en Saltillo/Ciudad de México.
+
+La búsqueda automática requiere `SEARCH_PROVIDER=brave` y `SEARCH_API_KEY`. Sin clave, la interfaz lo indica y conserva alternativas manuales. El monitor guarda propuestas y mantiene los datos públicos aprobados; no publica cambios ni cambia proveedor de forma silenciosa.
+
+## Alcance comprobado y límites
+
+El bot es determinista y no utiliza un LLM. Las URLs de imágenes se aplican al catálogo; alojar copias requiere conectar almacenamiento permanente. Páginas con JavaScript obligatorio, CAPTCHA o login requieren API o un adaptador autorizado. No se infiere moneda ni entrega, ni se convierten divisas.
+
+El precio sugerido usa margen sobre venta, no markup sobre costo. Su comisión se calcula antes de impuestos; confirmar el tratamiento fiscal del proveedor y pasarela.
+
+No se implementaron checkout, recepción de logos, bot de atención, trazabilidad de pedidos ni recuperación de contraseña. Esos flujos continúan como desarrollo posterior, y la tienda no los anuncia como operativos.
+
+## Documentación
+
+- [Auditoría y cambios UI](docs/ui-audit.md).
+- [Agente y reglas del catálogo](docs/supplier-agent.md).
+- [Persistencia](docs/database-schema.sql).
+- [Seguridad](docs/security.md).
