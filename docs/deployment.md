@@ -36,6 +36,14 @@ disparar el workflow de monitoreo y activar `MONITOR_ENABLED` siguiendo los paso
 inferiores. El plan gratuito no admite dominio propio. No activar un complemento
 de pago sin autorización. Conservar la versión previa para poder revertir el release.
 
+El hook también inicia `ops/monitor-scheduler.py`. Este worker llama al endpoint
+local con `MONITOR_SECRET` cada cuatro horas (minuto 17 UTC), guarda la última
+ejecución completada fuera del release y retoma la revisión pendiente tras reiniciar.
+No habilitar simultáneamente el cron de GitHub. Si el hosting duerme o está caído,
+el worker se detiene y recupera la revisión al despertar; se necesita un plan
+sin suspensión para garantizar ejecución aun sin tráfico. Verificar el estado
+del plan antes de anunciar disponibilidad continua.
+
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 
 Variables del servidor:
