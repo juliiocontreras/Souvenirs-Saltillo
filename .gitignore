@@ -13,3 +13,6 @@ coverage/
 artifacts/
 *.tmp
 .env.local
+
+__pycache__/
+*.pyc

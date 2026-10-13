@@ -13,6 +13,37 @@ Sin `DATABASE_URL`, desarrollo conserva catálogo, sesiones e historial en `.dat
 
 ## Hosting de Next.js
 
+### BasicDeploy: paquete standalone
+
+El proyecto genera `.next/standalone`. Compilar fuera del contenedor gratuito (256 MB),
+copiar `.next/static` dentro de ese paquete y, si existe, `public`. Incluir
+`ops/basicdeploy-boot.sh` y publicar el archivo con un checksum SHA-256. No incluir
+archivos `.env`, datos, credenciales ni logs en el paquete.
+
+Instalar Node 22.19 o posterior dentro de `/workspace/node`, verificando el checksum
+oficial. Usar el `DATABASE_URL` que proporciona el contenedor; no imprimirlo ni cambiar
+su conexión interna por una conexión pública sin TLS.
+
+Guardar secretos independientes en `/workspace/saltillo-private.env` con permisos 600.
+El build se instala en un directorio de release y `/workspace/saltillo/current` apunta
+a la versión activa. Crear `/workspace/.bd_boot.sh` ejecutable que invoque
+`/workspace/saltillo/current/ops/basicdeploy-boot.sh`. Ese script carga las variables
+privadas, evita procesos duplicados y escucha en `0.0.0.0:8080`. BasicDeploy ejecuta
+el hook al despertar/reiniciar; guardar los logs en un archivo privado del contenedor.
+
+Probar HTTPS, login/logout, acceso privado, base de datos e importación; después
+disparar el workflow de monitoreo y activar `MONITOR_ENABLED` siguiendo los pasos
+inferiores. El plan gratuito no admite dominio propio. No activar un complemento
+de pago sin autorización. Conservar la versión previa para poder revertir el release.
+
+El hook también inicia `ops/monitor-scheduler.py`. Este worker llama al endpoint
+local con `MONITOR_SECRET` cada cuatro horas (minuto 17 UTC), guarda la última
+ejecución completada fuera del release y retoma la revisión pendiente tras reiniciar.
+No habilitar simultáneamente el cron de GitHub. Si el hosting duerme o está caído,
+el worker se detiene y recupera la revisión al despertar; se necesita un plan
+sin suspensión para garantizar ejecución aun sin tráfico. Verificar el estado
+del plan antes de anunciar disponibilidad continua.
+
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 
 Variables del servidor:
