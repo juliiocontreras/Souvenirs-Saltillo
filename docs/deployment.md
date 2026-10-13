@@ -1,6 +1,9 @@
 # Primer despliegue de Souvenirs Saltillo
 
-El repositorio integra tienda, login, panel y bot en una aplicación Next.js. No se ha publicado un sitio ni se han configurado credenciales de producción desde esta sesión.
+El repositorio integra tienda, login, panel y bot en una aplicación Next.js. El primer
+sitio está publicado en BasicDeploy; consultar [production-state.md](production-state.md)
+para el estado verificado y el paso pendiente de Brave Search. Esta guía permite
+reproducir la configuración en otro entorno.
 
 ## Desarrollo local
 
@@ -52,8 +55,9 @@ del plan antes de anunciar disponibilidad continua.
 
 El servidor Next.js escucha solo en loopback `8081`. `ops/http-entry.mjs` sirve el
 puerto público `8080` y entrega HTML completo con longitud conocida, limitado a
-8 MB. Esto evita que el aviso del hosting se inserte en el `<head>` de respuestas
-Next.js por partes; el aviso permanece visible. JSON y archivos se transmiten
+8 MB. Normaliza el cierre de `title` usando espacio opcional válido en HTML:
+el hosting inyectaba otro aviso después del cierre literal y producía un `<head>`
+inválido. El aviso normal del pie permanece visible. JSON y archivos se transmiten
 directamente, conservando las cookies y los encabezados de autenticación.
 
 Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler:
