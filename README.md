@@ -1,6 +1,6 @@
 # Souvenirs Saltillo
 
-Aplicación Next.js con catálogo público y panel administrativo para souvenirs y artículos personalizados. La integración de código incluye importación desde proveedores, persistencia y monitoreo; el primer despliegue y sus credenciales se configuran por separado.
+Aplicación Next.js con catálogo público y panel administrativo para souvenirs y artículos personalizados. Incluye importación desde proveedores, persistencia y monitoreo. [Tienda publicada](https://r1q3g0ao.basicdeploy.com) · [estado del despliegue](docs/production-state.md).
 
 ## Lo implementado
 
@@ -36,7 +36,7 @@ Las pruebas de PostgreSQL se activan con `TEST_DATABASE_URL` sobre una base **te
 
 ## Primer despliegue
 
-Seguir [docs/deployment.md](docs/deployment.md). Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Activar el workflow después de configurar el sitio y los secrets `MONITOR_URL` y `MONITOR_SECRET`. Los horarios se muestran en Saltillo/Ciudad de México.
+Seguir [docs/deployment.md](docs/deployment.md). El sitio actual utiliza PostgreSQL y el scheduler de BasicDeploy; el cron de GitHub permanece desactivado. La búsqueda Brave espera una clave del propietario. Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Los horarios se muestran en Saltillo/Ciudad de México.
 
 La búsqueda automática requiere `SEARCH_PROVIDER=brave` y `SEARCH_API_KEY`. Sin clave, la interfaz lo indica y conserva alternativas manuales. El monitor guarda propuestas y mantiene los datos públicos aprobados; no publica cambios ni cambia proveedor de forma silenciosa.
 

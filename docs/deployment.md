@@ -1,6 +1,9 @@
 # Primer despliegue de Souvenirs Saltillo
 
-El repositorio integra tienda, login, panel y bot en una aplicación Next.js. No se ha publicado un sitio ni se han configurado credenciales de producción desde esta sesión.
+El repositorio integra tienda, login, panel y bot en una aplicación Next.js. El primer
+sitio está publicado en BasicDeploy; consultar [production-state.md](production-state.md)
+para el estado verificado y el paso pendiente de Brave Search. Esta guía permite
+reproducir la configuración en otro entorno.
 
 ## Desarrollo local
 
