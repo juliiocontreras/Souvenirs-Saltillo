@@ -20,11 +20,28 @@ const empty = () => ({
   attempts: {},
   runs: {},
   leases: {},
+  searchUsage: {},
 });
 const copy = (value) => structuredClone(value);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class CatalogRepository {
+  async searchUsage(provider, now = Date.now()) {
+    const month = new Date(now).toISOString().slice(0, 7);
+    return (await this.read()).searchUsage?.[provider + ':' + month] ||
+      { provider, month, used: 0 };
+  }
+  async reserveSearch(provider, limit, now = Date.now()) {
+    const month = new Date(now).toISOString().slice(0, 7);
+    return this.mutate((state) => {
+      state.searchUsage ||= {};
+      const key = provider + ':' + month;
+      const usage = (state.searchUsage[key] ||= { provider, month, used: 0 });
+      if (usage.used >= limit) return false;
+      usage.used++;
+      return true;
+    });
+  }
   async saveProduct(product) {
     if (
       typeof product.id !== "string" ||

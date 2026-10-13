@@ -67,10 +67,11 @@ export default function AdminPanel({
   initialProducts,
   initialRuns,
   defaultMargin,
-  searchConfigured,
+  initialSearchState,
   monitorConfigured,
 }) {
   const [reviewedCandidates, setReviewedCandidates] = useState({});
+  const [searchState, setSearchState] = useState(initialSearchState);
   const [products, setProducts] = useState(initialProducts),
     [runs, setRuns] = useState(initialRuns),
     [draft, setDraft] = useState(null),
@@ -108,6 +109,7 @@ export default function AdminPanel({
     ]);
     setProducts(catalog.products);
     setRuns(state.runs);
+    setSearchState(state.searchState);
     const openIds = Object.keys(intelligence);
     if (openIds.length) {
       const fresh = await Promise.all(
@@ -352,10 +354,21 @@ export default function AdminPanel({
               <small>Horario de Saltillo</small>
             </div>
           </div>
-          {!searchConfigured && (
+          {!searchState.configured && (
             <p className="notice">
-              Búsqueda automática sin configurar. Puedes agregar y verificar
-              enlaces alternativos manualmente.
+              {searchState.provider === "tavily"
+                ? "Tavily está seleccionado; falta guardar tu clave para buscar proveedores. "
+                : "Búsqueda automática sin configurar. "}
+              Puedes agregar y verificar enlaces alternativos manualmente.
+            </p>
+          )}
+          {searchState.provider && (
+            <p className="notice">
+              {searchState.provider === "tavily" ? "Tavily" : "Brave"}: {searchState.used} de {searchState.limit} consultas
+              de esta tienda en {searchState.month} (mes UTC).{" "}
+              {searchState.remaining === 0
+                ? "Se alcanzó el límite. La búsqueda se pausa hasta el siguiente mes; las revisiones de enlaces continúan."
+                : "El límite mensual pausa nuevas búsquedas, sin detener las revisiones de enlaces."}
             </p>
           )}
           {!runs.length && (
@@ -964,6 +977,15 @@ export default function AdminPanel({
                 {run.search.some(
                   (result) => result.status === "unconfigured",
                 ) && <small>Búsqueda automática sin configurar</small>}
+                {[...new Set(run.search.map(result => result.status))]
+                  .filter(status => status !== "ok" && status !== "unconfigured")
+                  .map(status => <small key={status}>{({
+                    budget_exhausted: "Búsqueda pausada: límite mensual de la tienda alcanzado.",
+                    quota_exhausted: "El buscador reportó su cuota agotada.",
+                    invalid_key: "El buscador rechazó la clave; revisa su configuración.",
+                    rate_limited: "El buscador limitó temporalmente las consultas.",
+                    unavailable: "La búsqueda no estuvo disponible; los enlaces guardados se siguen revisando.",
+                  })[status] || "Consulta de proveedores pendiente."}</small>)}
               </div>
             ))}
             {!runs.length && (

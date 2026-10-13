@@ -40,6 +40,11 @@ test(
       assert.equal(await first.acquireLease("test", "first"), true);
       assert.equal(await second.acquireLease("test", "second"), false);
       await first.releaseLease("test", "first");
+      await first.mutate(state => { delete state.searchUsage['tavily:2026-10']; });
+      const results = await Promise.all(Array.from({length:8}, (_value, index) =>
+        (index % 2 ? first : second).reserveSearch('tavily', 3, Date.parse('2026-10-13T00:00:00Z'))));
+      assert.equal(results.filter(Boolean).length,3);
+      assert.equal((await new PostgresCatalogRepository(pool).searchUsage('tavily',Date.parse('2026-10-13T12:00:00Z'))).used,3);
     } finally {
       await pool.end();
     }

@@ -8,7 +8,7 @@ La skill es un flujo reutilizable; no ejecuta por sí sola un cron, no instala u
 - `lib/supplier-scraper.mjs`: extracción de varias fichas/variantes con campos nulos y evidencia.
 - `lib/public-fetch.mjs`: transporte HTTP restringido, reglas de robots y clasificación de errores.
 - `lib/catalog-service.mjs`: borrador, edición y aplicación idempotente al catálogo.
-- `lib/supplier-monitor.mjs`: leases, lotes, historial, búsqueda Brave y selección revisada de alternativas.
+- `lib/supplier-monitor.mjs`: leases, lotes, historial, búsqueda Tavily y selección revisada de alternativas.
 - `.github/workflows/supplier-monitor.yml`: ejemplo de programación cada cuatro horas.
 - `docs/deployment.md`: configuración de persistencia, acceso y secretos del hosting.
 
@@ -19,3 +19,10 @@ Reutilizar el backend y la autenticación del proyecto receptor. El transporte y
 El runtime debe demostrar: datos persistentes después de reiniciar, permiso de servidor, sesión revocable, precio con configuración explícita, campos ausentes pendientes, selección de variante, URLs públicas y redirecciones verificadas, edición antes de publicar, monitoreo con historial y recuperación de pendientes, alternativas con evidencia e identidad verificada, y catálogo público sin costos ni fuentes privadas.
 
 Primero usar fixtures controladas para cubrir errores. Después validar al menos un proveedor real autorizado del proyecto receptor. Una página de ejemplo en un servicio HTTP permite probar extracción, pero no demuestra compatibilidad con los proveedores comerciales de la tienda.
+
+The Tavily adapter uses basic Search with auto_parameters/answer/extraction disabled.
+Reserve each attempt in a persistent monthly counter before network I/O, including
+failures; serialize reservations across workers. Saltillo caps local calls at 900
+per UTC month, pauses search when exhausted and preserves link monitoring. Configure
+a dedicated free-plan key outside source control; never infer account-wide usage
+from the local counter. Use the hosting prompt to validate /usage without a paid search.
