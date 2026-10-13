@@ -12,7 +12,7 @@
 - GitHub `Supplier monitor`: desactivado para evitar dos schedulers. La conexión de
   GitHub no permite escribir secrets de Actions; el worker usa el secreto privado
   del hosting y registra resultados en la misma base.
-- Búsqueda automática: **pendiente de la cuenta y clave Brave Search del propietario**.
+- Búsqueda automática: **pendiente de la cuenta y clave Tavily del propietario**.
   Las alternativas manuales están disponibles.
 
 Verificación sobre HTTPS real: login, cookie Secure/HttpOnly/SameSite, APIs privadas,
@@ -24,17 +24,17 @@ transformación HTML del hosting. El aviso del proveedor queda visible en el pie
 No se han importado productos comerciales ni se verificó un proveedor real del
 negocio. Algunas fuentes requerirán un adaptador o API. No hay checkout ni pedidos.
 
-## Terminar Brave
+## Terminar Tavily
 
-1. Crear cuenta y generar una clave en https://api-dashboard.search.brave.com/.
+1. Crear cuenta y generar una clave en https://www.tavily.com/pricing.
 2. Abrir BasicDeploy, contenedor `r1q3g0ao`, terminal.
 3. Ejecutar `python3 /workspace/saltillo/current/ops/configure-search.py`.
-4. Introducir la clave en el prompt privado. El script verifica una consulta,
+4. Introducir la clave en el prompt privado. El script verifica el plan gratuito y la clave,
    guarda la clave con permisos 600 y reinicia únicamente esta aplicación.
 5. Abrir el panel, comprobar que desaparece el aviso de búsqueda pendiente y
    ejecutar **Revisar proveedores** después de guardar productos reales.
 
-El plan de Brave y sus cuotas se eligen en la cuenta del propietario. No se ha
+El plan de Tavily y sus cuotas se eligen en la cuenta del propietario. No se ha
 contratado ningún servicio o complemento de pago. El contenedor gratuito puede
 suspenderse; el hook reinicia la tienda y recupera la revisión pendiente al despertar.
 Una ejecución estricta sin tráfico exige un hosting sin suspensión.
@@ -50,3 +50,7 @@ CI verifica código y PostgreSQL. **Package production** publica un paquete stan
 del mismo commit verificado; no actualiza el contenedor automáticamente. Instalar
 cada versión comprobando su checksum y conservar la anterior para revertir.
 Ver [deployment.md](deployment.md) para configuración, límites y recuperación.
+
+Tavily está preparado con un tope de 900 consultas locales por mes UTC. El panel
+muestra el contador; se pausa búsqueda al agotarlo y continúa el monitor. No se
+ha generado ni instalado una clave del propietario desde esta sesión.

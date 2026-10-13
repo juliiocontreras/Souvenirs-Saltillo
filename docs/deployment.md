@@ -2,7 +2,7 @@
 
 El repositorio integra tienda, login, panel y bot en una aplicación Next.js. El primer
 sitio está publicado en BasicDeploy; consultar [production-state.md](production-state.md)
-para el estado verificado y el paso pendiente de Brave Search. Esta guía permite
+para el estado verificado y el paso pendiente de Tavily. Esta guía permite
 reproducir la configuración en otro entorno.
 
 ## Desarrollo local
@@ -64,11 +64,12 @@ Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler
 el panel mostrará que está programado y conservará el historial de ejecuciones
 como evidencia independiente. La variable por sí sola no ejecuta el monitor.
 
-Para habilitar búsqueda, crear una cuenta y una clave en Brave Search API. Desde la
+Para habilitar búsqueda, crear una cuenta y una clave en Tavily API. Desde la
 terminal del contenedor ejecutar `python3 /workspace/saltillo/current/ops/configure-search.py`.
-El comando solicita la clave sin mostrarla, comprueba una consulta real antes de
-guardarla en el archivo privado y reinicia únicamente este servidor. Revisar las
-condiciones/cuota del plan de Brave antes de generar la clave. No compartirla por chat.
+El comando solicita la clave sin mostrarla, verifica autenticación y plan gratuito
+mediante `/usage` sin ejecutar una búsqueda, rechaza planes de pago o pago por uso
+y la guarda en el archivo privado antes de reiniciar únicamente este servidor. Revisar las
+condiciones/cuota del plan de Tavily antes de generar la clave. No compartirla por chat.
 
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 
@@ -82,8 +83,9 @@ Variables del servidor:
 | `AUTH_SECRET` | Secreto aleatorio independiente de al menos 32 caracteres para firmar sesiones. |
 | `MONITOR_SECRET` | Secreto independiente de al menos 32 caracteres para el scheduler. |
 | `DEFAULT_MARGIN_PERCENT` | Margen bruto inicial editable; predeterminado 40, no markup sobre el costo. |
-| `SEARCH_PROVIDER` | `brave` para activar búsqueda automática, opcional. |
-| `SEARCH_API_KEY` | Clave de Brave Search, opcional y solo en servidor. |
+| `SEARCH_PROVIDER` | `tavily` para activar búsqueda automática, opcional. |
+| `SEARCH_API_KEY` | Clave de Tavily, opcional y solo en servidor. |
+| `SEARCH_MONTHLY_LIMIT` | Consultas reservadas por mes UTC de esta tienda, de 0 a 900; predeterminado 900. |
 | `MONITOR_BATCH_SIZE` | Enlaces por lote, predeterminado 2 y máximo 5. |
 
 El adaptador crea `souvenirs_catalog_records` en la base del proyecto. El rol del servidor necesita permisos para crear esa tabla inicialmente y operar sus registros. Ver `database-schema.sql`. El pool, los locks transaccionales y las consultas quedan exclusivamente en servidor.
@@ -120,3 +122,20 @@ Como alternativa al workflow, usar `npm run monitor:suppliers` desde un cron o j
 - No se implementó checkout, recepción de logos ni recuperación de contraseña. El catálogo evita anunciar esos flujos como si estuvieran disponibles.
 
 El despliegue y la programación requieren el hosting, la base y los secretos anteriores. La integración de código puede revisarse y probarse antes de configurar cualquiera de ellos.
+
+## Presupuesto gratuito de Tavily
+
+Usar el plan Researcher gratuito sin activar pago por uso. La tienda usa únicamente
+Search basic (un crédito), sin auto_parameters, respuestas generadas, Extract, Crawl
+ni reintentos automáticos. Verifica hasta tres URLs candidatas con el scraper propio.
+Cada intento reserva un cupo en PostgreSQL antes de salir a la API; un timeout también
+consume ese cupo conservador. El contador sobrevive reinicios y varios procesos y
+separa meses UTC. Las claves nunca se guardan en esa tabla ni se envían al cliente.
+
+El panel muestra uso y límite local. Al agotarlo, se pausa la búsqueda y continúa
+la revisión de enlaces principales y alternativas guardadas. Con una consulta por
+producto cada cuatro horas, 5 productos consumen aproximadamente 900 al mes de
+30 días; un mes más largo puede agotar antes el presupuesto. El límite no concede
+créditos adicionales ni mide otras aplicaciones que usen la misma cuenta Tavily.
+Crear una clave dedicada y mantener el plan gratuito para evitar cargos externos.
+Sin clave aún no hay una búsqueda Tavily real verificada; pruebas usan fixtures.

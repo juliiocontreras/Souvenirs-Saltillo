@@ -17,7 +17,7 @@ Por cada producto:
 - detectar cambios de entrega;
 - distinguir enlaces retirados, bloqueados, limitados y errores temporales o de extracción;
 - registrar `lastCheckedAt`, `nextCheckAt`, precio observado y evidencia de estado sin modificar los datos públicos aprobados;
-- revisar alternativas guardadas y buscar nuevos candidatos durante cada ciclo del enlace principal con Brave Search, cuando esté configurado.
+- revisar alternativas guardadas y buscar nuevos candidatos durante cada ciclo del enlace principal con Tavily, cuando esté configurado.
 
 No cambiar automáticamente de proveedor ni publicar un nuevo precio sin una regla explícita o aprobación administrativa.
 

@@ -10,7 +10,7 @@ Aplicación Next.js con catálogo público y panel administrativo para souvenirs
 - Vista previa editable, precio sugerido con margen bruto/flete/comisiones/impuesto, precio manual, borrador y aprobación antes de publicar.
 - Catálogo, sesiones y revisión persistentes en PostgreSQL. Para desarrollo o servidor con disco durable, adaptador de archivo con escritura atómica.
 - Worker por lotes con lease, historial de observaciones y diferencias entre fuente retirada, bloqueada, incompleta y fallo temporal.
-- Alternativas manuales y búsqueda opcional con Brave Search; selección verificada abre una nueva vista previa antes de cambiar el proveedor.
+- Alternativas manuales y búsqueda opcional con Tavily; selección verificada abre una nueva vista previa antes de cambiar el proveedor.
 - Workflow de GitHub Actions cada cuatro horas y comando `npm run monitor:suppliers`.
 - [Skill reutilizable](skills/supplier-catalog-agent/SKILL.md) para adaptar este flujo a otros proyectos.
 
@@ -36,9 +36,9 @@ Las pruebas de PostgreSQL se activan con `TEST_DATABASE_URL` sobre una base **te
 
 ## Primer despliegue
 
-Seguir [docs/deployment.md](docs/deployment.md). El sitio actual utiliza PostgreSQL y el scheduler de BasicDeploy; el cron de GitHub permanece desactivado. La búsqueda Brave espera una clave del propietario. Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Los horarios se muestran en Saltillo/Ciudad de México.
+Seguir [docs/deployment.md](docs/deployment.md). El sitio actual utiliza PostgreSQL y el scheduler de BasicDeploy; el cron de GitHub permanece desactivado. La búsqueda Tavily espera una clave del propietario. Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Los horarios se muestran en Saltillo/Ciudad de México.
 
-La búsqueda automática requiere `SEARCH_PROVIDER=brave` y `SEARCH_API_KEY`. Sin clave, la interfaz lo indica y conserva alternativas manuales. El monitor guarda propuestas y mantiene los datos públicos aprobados; no publica cambios ni cambia proveedor de forma silenciosa.
+La búsqueda automática usa `SEARCH_PROVIDER=tavily` y `SEARCH_API_KEY`, con búsquedas básicas de un crédito. El límite `SEARCH_MONTHLY_LIMIT=900` se reserva en PostgreSQL antes de cada intento, incluidos fallos; no supera 900 aunque se configure un valor mayor. Al agotarse se pausa únicamente la búsqueda hasta el siguiente mes UTC: el monitor de enlaces sigue funcionando. Sin clave, el panel lo indica y conserva alternativas manuales. Brave sigue disponible como adaptador opcional. El monitor guarda propuestas y mantiene los datos públicos aprobados; no publica cambios ni cambia proveedor de forma silenciosa.
 
 ## Alcance comprobado y límites
 
