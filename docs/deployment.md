@@ -50,6 +50,12 @@ el worker se detiene y recupera la revisión al despertar; se necesita un plan
 sin suspensión para garantizar ejecución aun sin tráfico. Verificar el estado
 del plan antes de anunciar disponibilidad continua.
 
+El servidor Next.js escucha solo en loopback `8081`. `ops/http-entry.mjs` sirve el
+puerto público `8080` y entrega HTML completo con longitud conocida, limitado a
+8 MB. Esto evita que el aviso del hosting se inserte en el `<head>` de respuestas
+Next.js por partes; el aviso permanece visible. JSON y archivos se transmiten
+directamente, conservando las cookies y los encabezados de autenticación.
+
 Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler:
 el panel mostrará que está programado y conservará el historial de ejecuciones
 como evidencia independiente. La variable por sí sola no ejecuta el monitor.
