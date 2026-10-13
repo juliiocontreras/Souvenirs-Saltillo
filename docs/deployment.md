@@ -54,6 +54,12 @@ Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler
 el panel mostrará que está programado y conservará el historial de ejecuciones
 como evidencia independiente. La variable por sí sola no ejecuta el monitor.
 
+Para habilitar búsqueda, crear una cuenta y una clave en Brave Search API. Desde la
+terminal del contenedor ejecutar `python3 /workspace/saltillo/current/ops/configure-search.py`.
+El comando solicita la clave sin mostrarla, comprueba una consulta real antes de
+guardarla en el archivo privado y reinicia únicamente este servidor. Revisar las
+condiciones/cuota del plan de Brave antes de generar la clave. No compartirla por chat.
+
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 
 Variables del servidor:
