@@ -34,8 +34,10 @@ pidfile=Path('/workspace/saltillo-server.pid')
 if pidfile.exists():
     try:
         pid=int(pidfile.read_text())
-        command=Path(f'/proc/{pid}/cmdline').read_bytes().split(b'\0')
-        if command[:2]==[b'/workspace/node/bin/node',b'server.js']:
+        # Next.js changes its process title, so cmdline is not stable.
+        executable=Path(f'/proc/{pid}/exe').resolve()
+        directory=Path(f'/proc/{pid}/cwd').resolve()
+        if executable==Path('/workspace/node/bin/node') and directory==Path('/workspace/saltillo/current').resolve():
             os.kill(pid,signal.SIGTERM)
             for _ in range(50):
                 if not Path(f'/proc/{pid}').exists(): break
