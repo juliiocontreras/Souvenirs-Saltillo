@@ -68,6 +68,7 @@ export default function AdminPanel({
   initialRuns,
   defaultMargin,
   searchConfigured,
+  monitorConfigured,
 }) {
   const [reviewedCandidates, setReviewedCandidates] = useState({});
   const [products, setProducts] = useState(initialProducts),
@@ -301,7 +302,9 @@ export default function AdminPanel({
             <a href="#historial">Revisiones</a>
           </nav>
           <p className="muted small">
-            Cada 4 horas, al activar el monitor en el hosting.
+            {monitorConfigured
+              ? "Programado cada 4 horas. Consulta la última revisión."
+              : "Cada 4 horas, al activar el monitor en el hosting."}
           </p>
         </aside>
         <section className="admin-content" id="contenido" tabIndex={-1}>
@@ -357,8 +360,9 @@ export default function AdminPanel({
           )}
           {!runs.length && (
             <p className="notice">
-              Todavía no hay revisiones registradas. El primer despliegue debe
-              activar el monitor para que opere con el panel cerrado.
+              {monitorConfigured
+                ? "La programación está configurada; aún no hay revisiones registradas. Comprueba la primera ejecución."
+                : "Todavía no hay revisiones registradas. El primer despliegue debe activar el monitor para que opere con el panel cerrado."}
             </p>
           )}
           <div
@@ -940,8 +944,10 @@ export default function AdminPanel({
           <section className="card" id="historial">
             <h2>Revisiones del catálogo</h2>
             <p className="muted small">
-              Horario de Saltillo (Ciudad de México). La programación se activa
-              durante el despliegue.
+              Horario de Saltillo (Ciudad de México).{" "}
+              {monitorConfigured
+                ? "Revisiones programadas cada 4 horas; el historial confirma las ejecuciones completadas."
+                : "La programación se activa durante el despliegue."}
             </p>
             {runs.slice(0, 10).map((run) => (
               <div className="run" key={run.id}>

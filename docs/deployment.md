@@ -49,6 +49,10 @@ el worker se detiene y recupera la revisión al despertar; se necesita un plan
 sin suspensión para garantizar ejecución aun sin tráfico. Verificar el estado
 del plan antes de anunciar disponibilidad continua.
 
+Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler:
+el panel mostrará que está programado y conservará el historial de ejecuciones
+como evidencia independiente. La variable por sí sola no ejecuta el monitor.
+
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 
 Variables del servidor:
