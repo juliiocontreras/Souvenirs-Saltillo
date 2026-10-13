@@ -20,6 +20,11 @@ copiar `.next/static` dentro de ese paquete y, si existe, `public`. Incluir
 `ops/basicdeploy-boot.sh` y publicar el archivo con un checksum SHA-256. No incluir
 archivos `.env`, datos, credenciales ni logs en el paquete.
 
+El workflow manual **Package production**, ejecutado solo desde `main`, compila y
+publica ese paquete con checksum en GitHub Releases. No contiene secretos del
+hosting. Puede repetirse para preparar la siguiente versión sin publicar el sitio
+automáticamente. `python3 ops/package-production.py` empaqueta también un build local.
+
 Instalar Node 22.19 o posterior dentro de `/workspace/node`, verificando el checksum
 oficial. Usar el `DATABASE_URL` que proporciona el contenedor; no imprimirlo ni cambiar
 su conexión interna por una conexión pública sin TLS.

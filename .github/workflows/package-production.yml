@@ -1,0 +1,33 @@
+name: Package production
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: python3 ops/package-production.py
+      - name: Publish reviewed runtime package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_tag="production-${GITHUB_SHA:0:12}"
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            gh release upload "$release_tag" saltillo-production.tgz saltillo-production.sha256 --clobber
+          else
+            gh release create "$release_tag" saltillo-production.tgz saltillo-production.sha256 \
+              --target "$GITHUB_SHA" --title "Souvenirs Saltillo: ${GITHUB_SHA:0:12}" \
+              --notes "Build standalone de main. No incluye secretos ni datos. Verificar el SHA-256 antes de instalar."
+          fi
