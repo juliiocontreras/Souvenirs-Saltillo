@@ -12,6 +12,7 @@ export NODE_ENV=production PORT=8080 HOSTNAME=0.0.0.0
 export NODE_OPTIONS=--max-old-space-size=128
 /workspace/node/bin/node server.js &
 server_pid=$!
+printf '%s\n' "$server_pid" > /workspace/saltillo-server.pid
 python3 ops/monitor-scheduler.py &
 monitor_pid=$!
 cleanup() { kill "$server_pid" "$monitor_pid" 2>/dev/null || true; }

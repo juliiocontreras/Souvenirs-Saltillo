@@ -18,6 +18,7 @@ export default async function Admin() {
       initialProducts={products}
       initialRuns={runs}
       defaultMargin={Number(process.env.DEFAULT_MARGIN_PERCENT || 40)}
+      monitorConfigured={process.env.MONITOR_SCHEDULER_CONFIGURED === "true"}
       searchConfigured={
         process.env.SEARCH_PROVIDER === "brave" &&
         Boolean(process.env.SEARCH_API_KEY)

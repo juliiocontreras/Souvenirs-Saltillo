@@ -20,6 +20,12 @@ copiar `.next/static` dentro de ese paquete y, si existe, `public`. Incluir
 `ops/basicdeploy-boot.sh` y publicar el archivo con un checksum SHA-256. No incluir
 archivos `.env`, datos, credenciales ni logs en el paquete.
 
+El workflow **Package production** compila y publica ese paquete con checksum en
+GitHub Releases después de un CI exitoso de `main`, usando el mismo commit
+verificado. También puede ejecutarse manualmente desde `main`. No contiene secretos
+del hosting ni publica el sitio automáticamente. `python3 ops/package-production.py`
+empaqueta también un build local.
+
 Instalar Node 22.19 o posterior dentro de `/workspace/node`, verificando el checksum
 oficial. Usar el `DATABASE_URL` que proporciona el contenedor; no imprimirlo ni cambiar
 su conexión interna por una conexión pública sin TLS.
@@ -43,6 +49,16 @@ No habilitar simultáneamente el cron de GitHub. Si el hosting duerme o está ca
 el worker se detiene y recupera la revisión al despertar; se necesita un plan
 sin suspensión para garantizar ejecución aun sin tráfico. Verificar el estado
 del plan antes de anunciar disponibilidad continua.
+
+Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler:
+el panel mostrará que está programado y conservará el historial de ejecuciones
+como evidencia independiente. La variable por sí sola no ejecuta el monitor.
+
+Para habilitar búsqueda, crear una cuenta y una clave en Brave Search API. Desde la
+terminal del contenedor ejecutar `python3 /workspace/saltillo/current/ops/configure-search.py`.
+El comando solicita la clave sin mostrarla, comprueba una consulta real antes de
+guardarla en el archivo privado y reinicia únicamente este servidor. Revisar las
+condiciones/cuota del plan de Brave antes de generar la clave. No compartirla por chat.
 
 La aplicación puede desplegarse en Vercel u otro hosting que soporte Next.js y funciones Node. Para hosting serverless configurar PostgreSQL persistente; no usar un archivo en disco efímero.
 

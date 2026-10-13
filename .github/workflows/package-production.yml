@@ -1,0 +1,43 @@
+name: Package production
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  package:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ env.SOURCE_SHA }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: python3 ops/package-production.py
+      - name: Publish reviewed runtime package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_tag="production-${SOURCE_SHA:0:12}"
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            gh release upload "$release_tag" saltillo-production.tgz saltillo-production.sha256 --clobber
+          else
+            gh release create "$release_tag" saltillo-production.tgz saltillo-production.sha256 \
+              --target "$SOURCE_SHA" --title "Souvenirs Saltillo: ${SOURCE_SHA:0:12}" \
+              --notes "Build standalone de main. No incluye secretos ni datos. Verificar el SHA-256 antes de instalar."
+          fi
