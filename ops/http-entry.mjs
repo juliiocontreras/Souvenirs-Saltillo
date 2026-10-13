@@ -21,8 +21,7 @@ export function createEntryServer(upstreamPort) {
         response.writeHead(incoming.statusCode, incoming.headers);
         incoming.pipe(response); return;
       }
-      // BasicDeploy transforms HTML. A complete response prevents its disclosure
-      // from being injected into an incomplete <head> during Next.js streaming.
+      // Buffer before normalizing HTML across Next.js stream boundaries.
       const chunks = [];
       let bytes = 0;
       incoming.on('data', chunk => {
@@ -32,7 +31,11 @@ export function createEntryServer(upstreamPort) {
       });
       incoming.on('end', () => {
         if (response.writableEnded || response.destroyed) return;
-        const body = Buffer.concat(chunks);
+        // BasicDeploy also injects a disclosure after literal </title>. Optional
+        // whitespace in an HTML end tag keeps the same DOM/title while avoiding
+        // that invalid head insertion. Its ordinary body disclosure stays visible.
+        const body = Buffer.from(Buffer.concat(chunks).toString('utf8')
+          .replaceAll('</title>', '</title >'));
         const headers = {...incoming.headers,'content-length':String(body.length)};
         delete headers['transfer-encoding'];
         response.writeHead(incoming.statusCode, headers);

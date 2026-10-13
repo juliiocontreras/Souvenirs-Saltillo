@@ -34,6 +34,14 @@ test('HTML stays buffered until complete, with exact length for hosting transfor
     assert.equal(response.headers['transfer-encoding'], undefined);
     assert.deepEqual(response.headers['set-cookie'], ['test=value; HttpOnly']);
     assert.match(response.body.toString(), /<body>Catalog<\/body><\/html>$/);
+    // Actual hosting transformation duplicates its disclosure after </title>.
+    const disclosure = '<div data-hosting-disclosure="true">Hosted app</div>';
+    const publicHtml = response.body.toString()
+      .replace('</title>', '</title>' + disclosure)
+      .replace('</body>', disclosure + '</body>');
+    assert.equal(publicHtml.split(disclosure).length - 1, 1,
+      'hosting injected a duplicate disclosure into the document head');
+    assert.equal(publicHtml.slice(0, publicHtml.indexOf('</head>')).includes(disclosure), false);
   } finally {
     complete?.();
     await Promise.all([new Promise(r => entry.close(r)), new Promise(r => origin.close(r))]);

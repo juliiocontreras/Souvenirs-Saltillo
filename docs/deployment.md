@@ -52,8 +52,9 @@ del plan antes de anunciar disponibilidad continua.
 
 El servidor Next.js escucha solo en loopback `8081`. `ops/http-entry.mjs` sirve el
 puerto público `8080` y entrega HTML completo con longitud conocida, limitado a
-8 MB. Esto evita que el aviso del hosting se inserte en el `<head>` de respuestas
-Next.js por partes; el aviso permanece visible. JSON y archivos se transmiten
+8 MB. Normaliza el cierre de `title` usando espacio opcional válido en HTML:
+el hosting inyectaba otro aviso después del cierre literal y producía un `<head>`
+inválido. El aviso normal del pie permanece visible. JSON y archivos se transmiten
 directamente, conservando las cookies y los encabezados de autenticación.
 
 Configurar `MONITOR_SCHEDULER_CONFIGURED=true` después de instalar el scheduler:
