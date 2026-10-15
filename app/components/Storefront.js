@@ -1,142 +1,125 @@
 "use client";
-import { useState } from "react";
-export default function Storefront({ products, unavailable }) {
-  const [query, setQuery] = useState(""),
-    [category, setCategory] = useState("Todos");
-  const categories = [
-    "Todos",
-    "Regalos",
-    "Personalizados",
-    "Empresas y eventos",
-  ];
-  const filtered = products.filter(
-    (product) =>
-      (category === "Todos" ||
-        product.category === category ||
-        (category === "Personalizados" && product.personalizationSupported)) &&
-      (product.title + " " + product.description)
-        .toLocaleLowerCase("es-MX")
-        .includes(query.toLocaleLowerCase("es-MX")),
-  );
+import { useEffect, useRef, useState } from "react";
+import {
+  readStoreFilters,
+  selectStoreProducts,
+  categoryHref,
+  canSortByPrice,
+} from "../../packages/core/storefront.mjs";
+import Header from "./storefront/Header";
+import {
+  Hero,
+  Collections,
+  Personalization,
+  About,
+  Footer,
+} from "./storefront/Sections";
+import Catalog from "./storefront/Catalog";
+import { ProductDialog, FaqDialog } from "./storefront/Dialogs";
+
+export default function Storefront({
+  products,
+  unavailable,
+  initialFilters = readStoreFilters(),
+}) {
+  const [category, setCategory] = useState(initialFilters.category);
+  const [query, setQuery] = useState(initialFilters.query);
+  const [sort, setSort] = useState(initialFilters.sort);
+  const [product, setProduct] = useState(null),
+    [faq, setFaq] = useState(false);
+  const searchRef = useRef(null);
+  const validSort =
+    sort.startsWith("price-") && !canSortByPrice(products) ? "recent" : sort;
+  const filtered = selectStoreProducts(products, {
+    category,
+    query,
+    sort: validSort,
+  });
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    category === "Todos"
+      ? url.searchParams.delete("categoria")
+      : url.searchParams.set("categoria", category);
+    query ? url.searchParams.set("q", query) : url.searchParams.delete("q");
+    validSort === "recent"
+      ? url.searchParams.delete("orden")
+      : url.searchParams.set("orden", validSort);
+    window.history.replaceState(null, "", url);
+  }, [category, query, validSort]);
+  useEffect(() => {
+    function restore() {
+      const state = readStoreFilters(
+        new URLSearchParams(window.location.search),
+      );
+      setCategory(state.category);
+      setQuery(state.query);
+      setSort(state.sort);
+    }
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
+  function navigateCategory(event, nextCategory) {
+    if (
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    )
+      return;
+    event.preventDefault();
+    setCategory(nextCategory);
+    setQuery("");
+    setSort("recent");
+    window.history.pushState(null, "", categoryHref(nextCategory));
+    document.getElementById("catalogo")?.scrollIntoView({ behavior: "auto" });
+    document.getElementById("catalog-title")?.focus({ preventScroll: true });
+  }
+  function reset() {
+    setCategory("Todos");
+    setQuery("");
+    setSort("recent");
+  }
   return (
-    <section
-      id="catalogo"
-      className="catalog-section"
-      aria-labelledby="catalog-title"
-    >
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">Encuentra tu detalle</p>
-          <h2 id="catalog-title">El catálogo</h2>
-        </div>
-        <label className="search-label">
-          <span className="sr-only">Buscar productos</span>
-          <input
-            type="search"
-            placeholder="Buscar un artículo…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            aria-label="Buscar productos"
-          />
-        </label>
-      </div>
-      <div className="category-tabs" role="group" aria-label="Categorías">
-        {categories.map((name) => (
-          <button
-            key={name}
-            className={"btn " + (category === name ? "" : "ghost")}
-            aria-pressed={category === name}
-            onClick={() => setCategory(name)}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-      <p className="muted small" role="status" aria-live="polite">
-        {products.length
-          ? `${filtered.length} ${filtered.length === 1 ? "artículo" : "artículos"}`
-          : ""}
-      </p>
-      {!filtered.length && (
-        <div className="card empty">
-          <p className="eyebrow">
-            {products.length ? "Sigue explorando" : "Próximamente"}
-          </p>
-          <h3>
-            {products.length
-              ? "No encontramos ese artículo"
-              : "Estamos preparando nuevos detalles"}
-          </h3>
-          <p className="muted">
-            {products.length
-              ? "Prueba otro nombre o cambia de categoría."
-              : unavailable
-                ? "El catálogo estará disponible próximamente."
-                : "Los productos aparecerán aquí cuando estén listos para compartir."}
-          </p>
-          {products.length > 0 && (
-            <button
-              className="btn ghost"
-              onClick={() => {
-                setQuery("");
-                setCategory("Todos");
-              }}
-            >
-              Ver todos los artículos
-            </button>
-          )}
-        </div>
+    <div className="storefront">
+      <Header
+        onCategory={navigateCategory}
+        onSearch={() => {
+          document
+            .getElementById("catalogo")
+            ?.scrollIntoView({ behavior: "auto" });
+          searchRef.current?.focus({ preventScroll: true });
+        }}
+      />
+      <main id="contenido" tabIndex={-1}>
+        <Hero onCategory={navigateCategory} />
+        <Collections onCategory={navigateCategory} />
+        <Catalog
+          products={products}
+          filtered={filtered}
+          unavailable={unavailable}
+          category={category}
+          query={query}
+          sort={validSort}
+          onCategory={setCategory}
+          onQuery={setQuery}
+          onSort={setSort}
+          onReset={reset}
+          onProduct={setProduct}
+          searchRef={searchRef}
+        />
+        <Personalization onCategory={navigateCategory} />
+        <About />
+      </main>
+      <Footer onCategory={navigateCategory} onFaq={() => setFaq(true)} />
+      {product && (
+        <ProductDialog
+          key={product.id}
+          product={product}
+          onClose={() => setProduct(null)}
+        />
       )}
-      <div className="grid product-grid">
-        {filtered.map((product) => (
-          <article className="card store-product" key={product.id}>
-            <div className="product-image">
-              {product.images[0] ? (
-                <img
-                  src={product.images[0]}
-                  alt={product.title}
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="muted">Imagen pendiente</span>
-              )}
-            </div>
-            <div className="product-copy">
-              <div className="actions product-tags">
-                <span className="muted small">{product.category}</span>
-                {product.personalizationSupported && (
-                  <span className="badge good">Personalizable</span>
-                )}
-              </div>
-              <h3>{product.title}</h3>
-              <p className="public-price">
-                {product.publicPrice !== null && product.currency
-                  ? new Intl.NumberFormat("es-MX", {
-                      style: "currency",
-                      currency: product.currency,
-                    }).format(product.publicPrice) +
-                    " " +
-                    product.currency
-                  : "Precio por confirmar"}
-              </p>
-              <p className="muted small">
-                {product.deliveryDays !== null
-                  ? `Entrega estimada: ${product.deliveryMinDays ?? product.deliveryDays}–${product.deliveryDays} días`
-                  : "Entrega por confirmar"}
-              </p>
-              <details>
-                <summary>Ver detalles</summary>
-                <p className="muted">{product.description}</p>
-                <p className="muted small">
-                  Disponibilidad y entrega se confirman según cantidad y
-                  destino.
-                </p>
-              </details>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
+      {faq && <FaqDialog onClose={() => setFaq(false)} />}
+    </div>
   );
 }

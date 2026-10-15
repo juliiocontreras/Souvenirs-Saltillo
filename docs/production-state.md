@@ -12,8 +12,9 @@
 - GitHub `Supplier monitor`: desactivado para evitar dos schedulers. La conexión de
   GitHub no permite escribir secrets de Actions; el worker usa el secreto privado
   del hosting y registra resultados en la misma base.
-- Búsqueda automática: **pendiente de la cuenta y clave Tavily del propietario**.
-  Las alternativas manuales están disponibles.
+- Búsqueda automática: **Tavily activado el 14 de octubre de 2026**. Plan gratuito
+  y clave verificados; búsqueda real con tres resultados y contador persistente
+  comprobado en el panel (1 de 900 consultas al realizar la prueba).
 
 Verificación sobre HTTPS real: login, cookie Secure/HttpOnly/SameSite, APIs privadas,
 rechazo de URL privada, importación de ficha sintética sin publicarla, catálogo
@@ -24,7 +25,10 @@ transformación HTML del hosting. El aviso del proveedor queda visible en el pie
 No se han importado productos comerciales ni se verificó un proveedor real del
 negocio. Algunas fuentes requerirán un adaptador o API. No hay checkout ni pedidos.
 
-## Terminar Tavily
+## Configurar o rotar Tavily
+
+La cuenta ya está conectada. Estos pasos se conservan para rotar la clave o para
+configurar otra instalación; el rediseño de tienda conserva la configuración privada.
 
 1. Crear cuenta y generar una clave en https://www.tavily.com/pricing.
 2. Abrir BasicDeploy, contenedor `r1q3g0ao`, terminal.
@@ -51,6 +55,7 @@ del mismo commit verificado; no actualiza el contenedor automáticamente. Instal
 cada versión comprobando su checksum y conservar la anterior para revertir.
 Ver [deployment.md](deployment.md) para configuración, límites y recuperación.
 
-Tavily está preparado con un tope de 900 consultas locales por mes UTC. El panel
-muestra el contador; se pausa búsqueda al agotarlo y continúa el monitor. No se
-ha generado ni instalado una clave del propietario desde esta sesión.
+Tavily opera con un tope de 900 consultas locales por mes UTC. El panel muestra
+el contador; se pausa búsqueda al agotarlo y continúa el monitor. La clave del
+propietario se transfirió cifrada y se guardó únicamente en el archivo privado
+del hosting, con permisos 600. No forma parte de los releases ni del repositorio.
