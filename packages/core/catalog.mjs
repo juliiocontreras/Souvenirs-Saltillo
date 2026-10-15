@@ -5,6 +5,7 @@ export function toPublicProduct(p) {
     title: p.title,
     description: p.description,
     category: p.category || "Regalos",
+    subcategory: p.subcategory || "",
     publicPrice: p.publicPrice ?? null,
     currency: p.currency ?? null,
     images: p.images || [],

@@ -6,6 +6,7 @@
   --sf-cream: #f7f5ef;
   --sf-line: #dfdfd5;
   --sf-serif: "Cormorant Garamond", Georgia, serif;
+  --sf-sans: "DM Sans", Arial, sans-serif;
   color: var(--sf-ink);
   background: var(--sf-white);
   font-family: "DM Sans", Arial, sans-serif;
@@ -456,8 +457,37 @@
 }
 .sf-category-tabs {
   display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 8px;
-  overflow-x: auto;
+}
+.sf-catalog-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 18px;
+  font-size: 13px;
+}
+.sf-subcategory-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 20px;
+  font-size: 12px;
+}
+.storefront .sf-subcategory-filter select {
+  width: auto;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 36px 10px 14px;
+  border: 1px solid var(--sf-line);
+  border-radius: 0;
+  background: var(--sf-white);
+  color: var(--sf-ink);
+  font-family: var(--sf-sans);
+  font-size: 13px;
 }
 .sf-category-tabs button {
   background: transparent;
@@ -1460,5 +1490,305 @@
   .storefront *::after {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+.sf-personal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sf-quote-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 74px;
+  z-index: 35;
+  padding: 13px 22px;
+  border: 1px solid #ffffff80;
+  border-radius: 4px;
+  background: var(--sf-olive);
+  color: var(--sf-white);
+  box-shadow: 0 5px 24px #25271f24;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+.sf-quote-launcher small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.sf-quote-launcher-icon {
+  display: none;
+}
+.storefront .sf-quote-dialog {
+  position: fixed;
+  inset: auto 20px 72px auto;
+  width: min(460px, calc(100% - 40px));
+  max-width: 460px;
+  max-height: calc(100dvh - 100px);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--sf-white);
+  color: var(--sf-ink);
+  border: 1px solid var(--sf-line);
+  border-radius: 4px;
+  box-shadow: 0 12px 60px #25271f26;
+}
+.sf-quote-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.sf-quote-dialog::backdrop {
+  background: #25271f12;
+}
+.sf-quote-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px 22px 20px;
+  background: var(--sf-olive);
+  color: var(--sf-white);
+  flex-shrink: 0;
+}
+.storefront .sf-quote-header h2 {
+  font-family: var(--sf-sans);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+.sf-quote-header p {
+  font-size: 12px;
+  margin-top: 7px;
+}
+.storefront .sf-quote-header .sf-icon-button {
+  color: inherit;
+  width: 30px;
+  height: 30px;
+  padding: 3px;
+}
+.sf-quote-body {
+  padding: 22px 28px 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 14px;
+}
+.sf-quote-body fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.sf-quote-body .sf-quote-step {
+  font-size: 12px;
+  color: var(--sf-muted);
+}
+.sf-quote-progress {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 28px;
+}
+.sf-quote-progress li {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--sf-muted);
+  line-height: 1.4;
+}
+.sf-quote-progress li span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  background: var(--sf-cream);
+  border-radius: 50%;
+  font-size: 13px;
+}
+.sf-quote-progress [aria-current="step"] {
+  font-weight: 600;
+  color: var(--sf-ink);
+}
+.sf-quote-progress [aria-current="step"] span {
+  background: var(--sf-olive);
+  color: var(--sf-white);
+}
+.storefront .sf-quote-body h3 {
+  font-family: var(--sf-sans);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin-bottom: 12px;
+}
+.sf-quote-body h3 + p {
+  color: var(--sf-muted);
+  margin-bottom: 22px;
+}
+.sf-quote-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 0 17px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.storefront .sf-quote-body input,
+.storefront .sf-quote-body textarea,
+.storefront .sf-quote-body select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--sf-line);
+  border-radius: 3px;
+  background: var(--sf-white);
+  color: var(--sf-ink);
+  font-family: var(--sf-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.sf-quote-body textarea {
+  resize: vertical;
+}
+.sf-quote-body small {
+  color: var(--sf-muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.sf-quote-body .sf-quote-check {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.storefront .sf-quote-body .sf-quote-check input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--sf-olive);
+}
+.sf-quote-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.storefront .sf-quote-actions .sf-button {
+  min-width: 0;
+  padding: 11px 17px;
+  gap: 10px;
+  font-size: 13px;
+}
+.sf-quote-actions button[type="submit"] {
+  flex: 1;
+}
+.sf-quote-body .sf-quote-note {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--sf-muted);
+  line-height: 1.6;
+}
+.sf-quote-body .sf-quote-error {
+  background: #fcf1eb;
+  color: #883e22;
+  padding: 12px;
+  font-size: 13px;
+}
+.sf-quote-summary {
+  margin: 0 0 24px;
+}
+.sf-quote-summary > div {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--sf-line);
+}
+.sf-quote-summary dt {
+  font-size: 11px;
+  color: var(--sf-muted);
+}
+.sf-quote-summary dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.sf-quote-success p {
+  margin-bottom: 18px;
+}
+.sf-quote-success h4 {
+  font-size: 16px;
+  margin: 24px 0 12px;
+}
+.sf-quote-success ul {
+  padding-left: 18px;
+}
+.sf-quote-success li {
+  margin: 12px 0;
+}
+.sf-quote-success li span {
+  display: block;
+  color: var(--sf-muted);
+  font-size: 12px;
+}
+.sf-quote-success .sf-button {
+  font-size: 12px;
+  margin-top: 12px;
+}
+.sf-quote-dialog button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+@media (max-width: 720px) {
+  .sf-quote-launcher {
+    right: 16px;
+    padding: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  .sf-quote-launcher-text {
+    display: none;
+  }
+  .sf-quote-launcher-icon {
+    display: block;
+  }
+  .storefront .sf-quote-dialog {
+    inset: auto 12px 72px;
+    width: calc(100% - 24px);
+    max-width: none;
+    max-height: calc(100dvh - 90px);
+  }
+  .sf-quote-header {
+    padding: 18px;
+  }
+  .storefront .sf-quote-header h2 {
+    font-size: 19px;
+  }
+  .sf-quote-header p {
+    font-size: 10px;
+  }
+  .sf-quote-body {
+    padding: 20px;
+  }
+  .storefront .sf-quote-body h3 {
+    font-size: 22px;
+  }
+  .storefront .sf-quote-body input,
+  .storefront .sf-quote-body textarea,
+  .storefront .sf-quote-body select {
+    font-size: 16px;
   }
 }

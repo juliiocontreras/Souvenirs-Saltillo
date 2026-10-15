@@ -16,6 +16,12 @@ export default function Icon({ name, size = 24, ...props }) {
     chevron: <path d="m6 9 6 6 6-6" />,
     close: <path d="m6 6 12 12M6 18 18 6" />,
     menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+    chat: (
+      <>
+        <path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 4V6a2 2 0 0 1 2-2Z" />
+        <path d="M7 9h10M7 13h6" />
+      </>
+    ),
     gift: (
       <>
         <path d="M4 10h16v4H4zM6 14v7h12v-7M12 10v11" />

@@ -19,5 +19,12 @@ create table if not exists souvenirs_catalog_records (
 -- leases: monitor/import owner and expiry for concurrency control.
 -- searchUsage: provider + UTC month, conservative reserved calls; no API keys.
 
+-- Private customer quote requests and attachments, separate from catalog reads.
+create table if not exists souvenirs_quote_requests (
+  id uuid primary key,
+  data jsonb not null,
+  logo_data bytea
+);
+
 -- This does not migrate any historical products/supplier_checks tables.
 -- If a previous deployment used a different schema, review an explicit migration.

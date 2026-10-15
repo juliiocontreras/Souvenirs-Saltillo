@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
 
-export default function Header({ onCategory, onSearch }) {
+export default function Header({ onCategory, onSearch, onQuote }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const header = useRef(null),
     menuButton = useRef(null),
@@ -108,6 +108,24 @@ export default function Header({ onCategory, onSearch }) {
           </a>
           <a href="#nosotros" onClick={closeMenus}>
             Nosotros
+          </a>
+          <a
+            href="#cotizar"
+            onClick={(event) => {
+              if (
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey ||
+                event.button !== 0
+              )
+                return;
+              event.preventDefault();
+              closeMenus();
+              onQuote();
+            }}
+          >
+            Cotizar
           </a>
         </nav>
         <div className="sf-header-actions">

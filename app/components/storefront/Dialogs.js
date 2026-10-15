@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icons";
+import { classificationLabel } from "../../../packages/core/categories.mjs";
 import {
   deliveryLabel,
   publicPriceLabel,
@@ -98,7 +99,7 @@ export function ProductDialog({ product, onClose }) {
           )}
         </div>
         <div className="sf-detail-copy">
-          <p className="sf-eyebrow">{product.category || "Regalos"}</p>
+          <p className="sf-eyebrow">{classificationLabel(product)}</p>
           <h2 id="product-dialog-title">{product.title}</h2>
           <p className="sf-detail-price">{publicPriceLabel(product)}</p>
           {product.personalizationSupported && (

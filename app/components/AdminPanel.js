@@ -1,5 +1,9 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import ClassificationFields from "./ClassificationFields";
+import ProductClassificationEditor from "./ProductClassificationEditor";
+import QuoteInbox from "./QuoteInbox";
+import { classificationLabel } from "../../packages/core/categories.mjs";
 
 const date = (value) =>
   value
@@ -49,6 +53,7 @@ function editFrom(option, margin, approved) {
     deliveryDays: fields.deliveryDays ?? "",
     deliveryMinDays: fields.deliveryMinDays ?? "",
     category: approved?.category || "Regalos",
+    subcategory: approved?.subcategory || "",
     personalizationSupported: approved?.personalizationSupported || false,
     publicPrice: approved?.publicPrice ?? "",
     conditionsConfirmed: false,
@@ -254,6 +259,7 @@ export default function AdminPanel({
         deliveryMinDays:
           edit.deliveryMinDays === "" ? null : Number(edit.deliveryMinDays),
         category: edit.category,
+        subcategory: edit.subcategory,
         personalizationSupported: edit.personalizationSupported,
         publicPrice: edit.publicPrice || null,
         pricing: edit.marginPercent === "" ? {} : policy,
@@ -301,6 +307,7 @@ export default function AdminPanel({
           <nav aria-label="Secciones del panel">
             <a href="#importar">Importar producto</a>
             <a href="#catalogo">Catálogo</a>
+            <a href="#cotizaciones">Cotizaciones</a>
             <a href="#historial">Revisiones</a>
           </nav>
           <p className="muted small">
@@ -364,8 +371,9 @@ export default function AdminPanel({
           )}
           {searchState.provider && (
             <p className="notice">
-              {searchState.provider === "tavily" ? "Tavily" : "Brave"}: {searchState.used} de {searchState.limit} consultas
-              de esta tienda en {searchState.month} (mes UTC).{" "}
+              {searchState.provider === "tavily" ? "Tavily" : "Brave"}:{" "}
+              {searchState.used} de {searchState.limit} consultas de esta tienda
+              en {searchState.month} (mes UTC).{" "}
               {searchState.remaining === 0
                 ? "Se alcanzó el límite. La búsqueda se pausa hasta el siguiente mes; las revisiones de enlaces continúan."
                 : "El límite mensual pausa nuevas búsquedas, sin detener las revisiones de enlaces."}
@@ -518,21 +526,13 @@ export default function AdminPanel({
                       Confirma el permiso de uso y la estabilidad de sus
                       enlaces.
                     </p>
-                    <label className="field">
-                      Categoría
-                      <select
-                        value={edit.category}
-                        onChange={change("category")}
-                      >
-                        {[
-                          "Regalos",
-                          "Personalizados",
-                          "Empresas y eventos",
-                        ].map((category) => (
-                          <option key={category}>{category}</option>
-                        ))}
-                      </select>
-                    </label>
+                    <ClassificationFields
+                      value={edit}
+                      disabled={Boolean(busy)}
+                      onChange={(fields) =>
+                        setEdit((old) => ({ ...old, ...fields }))
+                      }
+                    />
                     <label className="check">
                       <input
                         type="checkbox"
@@ -696,7 +696,7 @@ export default function AdminPanel({
                 <div className="section-heading">
                   <div>
                     <h3>{product.title}</h3>
-                    <p className="muted">{product.category}</p>
+                    <p className="muted">{classificationLabel(product)}</p>
                   </div>
                   <span
                     className={
@@ -706,6 +706,21 @@ export default function AdminPanel({
                     {product.status === "published" ? "Publicado" : "Borrador"}
                   </span>
                 </div>
+                <ProductClassificationEditor
+                  product={product}
+                  busy={Boolean(busy)}
+                  onSave={(fields) =>
+                    perform("classify-" + product.id, async () => {
+                      await api(
+                        `/api/products/${product.id}/classification`,
+                        fields,
+                        "PATCH",
+                      );
+                      await refresh();
+                      notify("Categoría y subcategoría actualizadas.");
+                    })
+                  }
+                />
                 <dl className="product-facts">
                   <div>
                     <dt>Costo de proveedor</dt>
@@ -954,6 +969,7 @@ export default function AdminPanel({
               </article>
             ))}
           </section>
+          <QuoteInbox />
           <section className="card" id="historial">
             <h2>Revisiones del catálogo</h2>
             <p className="muted small">
@@ -977,15 +993,26 @@ export default function AdminPanel({
                 {run.search.some(
                   (result) => result.status === "unconfigured",
                 ) && <small>Búsqueda automática sin configurar</small>}
-                {[...new Set(run.search.map(result => result.status))]
-                  .filter(status => status !== "ok" && status !== "unconfigured")
-                  .map(status => <small key={status}>{({
-                    budget_exhausted: "Búsqueda pausada: límite mensual de la tienda alcanzado.",
-                    quota_exhausted: "El buscador reportó su cuota agotada.",
-                    invalid_key: "El buscador rechazó la clave; revisa su configuración.",
-                    rate_limited: "El buscador limitó temporalmente las consultas.",
-                    unavailable: "La búsqueda no estuvo disponible; los enlaces guardados se siguen revisando.",
-                  })[status] || "Consulta de proveedores pendiente."}</small>)}
+                {[...new Set(run.search.map((result) => result.status))]
+                  .filter(
+                    (status) => status !== "ok" && status !== "unconfigured",
+                  )
+                  .map((status) => (
+                    <small key={status}>
+                      {{
+                        budget_exhausted:
+                          "Búsqueda pausada: límite mensual de la tienda alcanzado.",
+                        quota_exhausted:
+                          "El buscador reportó su cuota agotada.",
+                        invalid_key:
+                          "El buscador rechazó la clave; revisa su configuración.",
+                        rate_limited:
+                          "El buscador limitó temporalmente las consultas.",
+                        unavailable:
+                          "La búsqueda no estuvo disponible; los enlaces guardados se siguen revisando.",
+                      }[status] || "Consulta de proveedores pendiente."}
+                    </small>
+                  ))}
               </div>
             ))}
             {!runs.length && (
