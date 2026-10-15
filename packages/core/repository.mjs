@@ -10,6 +10,7 @@ import {
 } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { toPublicProduct } from "./catalog.mjs";
+import { validateContactSettings } from "./contact.mjs";
 
 const empty = () => ({
   products: {},
@@ -21,11 +22,26 @@ const empty = () => ({
   runs: {},
   leases: {},
   searchUsage: {},
+  settings: {},
 });
 const copy = (value) => structuredClone(value);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class CatalogRepository {
+  async getContactSettings() {
+    return (await this.read()).settings?.publicContact || null;
+  }
+  async saveContactSettings(input) {
+    const settings = validateContactSettings(input);
+    return this.mutate((state) => {
+      state.settings ||= {};
+      state.settings.publicContact = {
+        ...settings,
+        updatedAt: new Date().toISOString(),
+      };
+      return state.settings.publicContact;
+    });
+  }
   async searchUsage(provider, now = Date.now()) {
     const month = new Date(now).toISOString().slice(0, 7);
     return (await this.read()).searchUsage?.[provider + ':' + month] ||

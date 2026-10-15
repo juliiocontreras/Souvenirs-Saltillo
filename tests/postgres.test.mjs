@@ -45,6 +45,10 @@ test(
         (index % 2 ? first : second).reserveSearch('tavily', 3, Date.parse('2026-10-13T00:00:00Z'))));
       assert.equal(results.filter(Boolean).length,3);
       assert.equal((await new PostgresCatalogRepository(pool).searchUsage('tavily',Date.parse('2026-10-13T12:00:00Z'))).used,3);
+      await first.saveContactSettings({ whatsappNumber: "+1 (202) 555-0123" });
+      assert.equal((await new PostgresCatalogRepository(pool).getContactSettings()).whatsappNumber, "12025550123");
+      await second.saveContactSettings({ whatsappNumber: "" });
+      assert.equal((await first.getContactSettings()).whatsappNumber, "");
     } finally {
       await pool.end();
     }

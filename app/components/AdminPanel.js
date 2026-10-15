@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import ClassificationFields from "./ClassificationFields";
 import ProductClassificationEditor from "./ProductClassificationEditor";
 import QuoteInbox from "./QuoteInbox";
+import ContactSettings from "./ContactSettings";
 import { classificationLabel } from "../../packages/core/categories.mjs";
 
 const date = (value) =>
@@ -74,6 +75,7 @@ export default function AdminPanel({
   defaultMargin,
   initialSearchState,
   monitorConfigured,
+  initialContactSettings,
 }) {
   const [reviewedCandidates, setReviewedCandidates] = useState({});
   const [searchState, setSearchState] = useState(initialSearchState);
@@ -308,6 +310,7 @@ export default function AdminPanel({
             <a href="#importar">Importar producto</a>
             <a href="#catalogo">Catálogo</a>
             <a href="#cotizaciones">Cotizaciones</a>
+            <a href="#configuracion">Configuración</a>
             <a href="#historial">Revisiones</a>
           </nav>
           <p className="muted small">
@@ -970,6 +973,7 @@ export default function AdminPanel({
             ))}
           </section>
           <QuoteInbox />
+          <ContactSettings initialSettings={initialContactSettings} />
           <section className="card" id="historial">
             <h2>Revisiones del catálogo</h2>
             <p className="muted small">
