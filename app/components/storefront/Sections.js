@@ -6,10 +6,10 @@ export function Hero({ onCategory }) {
       <section className="sf-hero" aria-labelledby="hero-title">
         <img
           className="sf-hero-photo"
-          src="/images/gifts-hero.webp"
-          alt="Regalos envueltos en papel kraft con listones verde olivo, una taza y eucalipto."
-          width="1681"
-          height="936"
+          src="/images/backpack-hero.webp"
+          alt="Mochila beige con correas verde olivo y un sol bordado en dorado."
+          width="2172"
+          height="724"
           fetchPriority="high"
         />
         <div className="sf-container sf-hero-inner">

@@ -109,28 +109,12 @@
   flex-shrink: 0;
   color: var(--sf-ink);
 }
-.sf-brand-symbol {
-  width: 68px;
-  height: 72px;
-  object-fit: cover;
-}
-.sf-wordmark-name {
+.sf-logo {
   display: block;
-  font-family: var(--sf-serif);
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 25px;
-  letter-spacing: 0.19em;
-  line-height: 1.1;
-}
-.sf-wordmark-city {
-  display: block;
-  text-align: center;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.65em;
-  margin: 7px 0 0 6px;
-  line-height: 1.2;
+  width: 250px;
+  height: auto;
+  aspect-ratio: 665 / 221;
+  object-fit: contain;
 }
 .sf-navigation {
   display: flex;
@@ -628,16 +612,12 @@
   padding-right: 20px;
 }
 .sf-wordmark-footer {
-  color: inherit;
+  padding: 12px 14px;
+  background: var(--sf-white);
+  border-radius: 3px;
 }
-.sf-wordmark-footer .sf-wordmark-name {
-  font-size: 32px;
-  letter-spacing: 0.15em;
-}
-.sf-wordmark-footer .sf-wordmark-city {
-  font-family: var(--sf-serif);
-  font-size: 15px;
-  letter-spacing: 0.5em;
+.sf-wordmark-footer .sf-logo {
+  width: 218px;
 }
 .sf-footer h3 {
   font-size: 20px;
@@ -921,12 +901,8 @@
   .sf-navigation {
     gap: 22px;
   }
-  .sf-wordmark-name {
-    font-size: 22px;
-  }
-  .sf-brand-symbol {
-    width: 48px;
-    height: 52px;
+  .sf-logo {
+    width: 218px;
   }
   .sf-catalog-heading {
     align-items: flex-start;
@@ -953,8 +929,8 @@
   .sf-footer-main {
     gap: 30px;
   }
-  .sf-wordmark-footer .sf-wordmark-name {
-    font-size: 25px;
+  .sf-wordmark-footer .sf-logo {
+    width: 190px;
   }
 }
 @media (max-width: 1040px) {
@@ -1074,6 +1050,29 @@
     margin: 0;
   }
 }
+@media (min-width: 721px) and (max-width: 1040px) {
+  .sf-hero {
+    display: flex;
+    flex-direction: column;
+  }
+  .sf-hero-inner {
+    min-height: 0;
+    padding-block: 38px 26px;
+    order: 0;
+  }
+  .sf-hero-copy {
+    width: 100%;
+    max-width: 650px;
+  }
+  .sf-hero-photo {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    order: 1;
+    height: 340px;
+    object-position: 95% center;
+  }
+}
 @media (max-width: 720px) {
   .storefront .sf-container {
     width: calc(100% - 40px);
@@ -1092,18 +1091,8 @@
   .sf-wordmark {
     gap: 7px;
   }
-  .sf-brand-symbol {
-    width: 39px;
-    height: 45px;
-  }
-  .sf-wordmark-name {
-    font-size: 20px;
-    letter-spacing: 0.14em;
-  }
-  .sf-wordmark-city {
-    font-size: 8px;
-    letter-spacing: 0.56em;
-    margin-top: 6px;
+  .sf-logo {
+    width: clamp(150px, 48vw, 190px);
   }
   .sf-header-actions {
     gap: 0;
@@ -1167,7 +1156,7 @@
     order: 1;
     height: 280px;
     object-fit: cover;
-    object-position: 78% 53%;
+    object-position: 95% center;
   }
   .sf-benefits-inner {
     padding-block: 19px;
@@ -1359,11 +1348,8 @@
     padding-bottom: 20px;
     text-align: center;
   }
-  .sf-wordmark-footer .sf-wordmark-name {
-    font-size: 30px;
-  }
-  .sf-wordmark-footer .sf-wordmark-city {
-    font-size: 13px;
+  .sf-wordmark-footer .sf-logo {
+    width: 218px;
   }
   .sf-footer-main > .sf-footer-brand > p {
     margin-top: 13px;
@@ -1452,15 +1438,8 @@
   .storefront .sf-container {
     width: calc(100% - 32px);
   }
-  .sf-brand-symbol {
-    width: 31px;
-    height: 38px;
-  }
-  .sf-wordmark-name {
-    font-size: 17px;
-  }
-  .sf-wordmark-city {
-    font-size: 7px;
+  .sf-logo {
+    width: 150px;
   }
   .storefront .sf-hero h1 {
     font-size: 42px;

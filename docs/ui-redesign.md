@@ -38,6 +38,18 @@ Catálogo vacío, búsqueda sin coincidencias y error de carga son estados disti
 Preguntas frecuentes y fichas usan diálogos nativos con Escape, foco y cierre.
 Los estilos de tienda están aislados del panel y del acceso administrativo.
 
+## Identidad compartida por el propietario
+
+Se integra una versión para web del logo de Souvenirs Saltillo proporcionado
+por el propietario, con su símbolo de bolsa, montañas, sol y torre. Se utiliza
+el logo completo en cabecera y pie y el símbolo como favicon. En el pie se
+coloca sobre una superficie clara para conservar la lectura de sus colores.
+
+La fotografía compartida de la mochila se adapta a un encuadre panorámico para
+la portada; en móvil se encuadra hacia la derecha para mostrar el artículo.
+Se conserva el texto y la navegación del diseño. No se crea una ficha de venta
+de la mochila sin sus datos comerciales y enlace de proveedor.
+
 ## Evidencia de diseño
 
 Dos conceptos coordinados: portada/colecciones y catálogo/personalización/pie.
