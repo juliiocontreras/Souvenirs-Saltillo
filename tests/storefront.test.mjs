@@ -83,7 +83,12 @@ test("shared URL filters reject unknown values and preserve Spanish category and
         "categoria=Personalizados&q=cer%C3%A1mica&orden=name",
       ),
     ),
-    { category: "Personalizados", query: "cerámica", sort: "name" },
+    {
+      category: "Personalizados",
+      subcategory: "",
+      query: "cerámica",
+      sort: "name",
+    },
   );
   assert.deepEqual(
     readStoreFilters({
@@ -91,7 +96,7 @@ test("shared URL filters reject unknown values and preserve Spanish category and
       q: ["unexpected"],
       orden: "supplierCost",
     }),
-    { category: "Todos", query: "", sort: "recent" },
+    { category: "Todos", subcategory: "", query: "", sort: "recent" },
   );
 });
 test("public labels keep missing amounts and delivery unknown instead of inventing zero prices or dates", () => {

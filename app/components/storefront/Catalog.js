@@ -1,6 +1,10 @@
 import Icon from "./Icons";
 import { ProductImage } from "./Dialogs";
 import {
+  classificationLabel,
+  subcategoriesFor,
+} from "../../../packages/core/categories.mjs";
+import {
   STORE_CATEGORIES,
   canSortByPrice,
   deliveryLabel,
@@ -11,9 +15,11 @@ export default function Catalog({
   filtered,
   unavailable,
   category,
+  subcategory,
   query,
   sort,
   onCategory,
+  onSubcategory,
   onQuery,
   onSort,
   onReset,
@@ -94,6 +100,33 @@ export default function Catalog({
           <Icon name="chevron" size={14} />
         </label>
       </div>
+      {category !== "Todos" && !STORE_CATEGORIES.includes(category) && (
+        <div className="sf-catalog-context">
+          <span>Colección: {category}</span>
+          <button
+            type="button"
+            className="sf-inline-link"
+            onClick={() => onCategory("Todos")}
+          >
+            Ver todas las categorías
+          </button>
+        </div>
+      )}
+      {subcategoriesFor(category).length > 0 && (
+        <label className="sf-subcategory-filter">
+          <span>Subcategoría de {category}</span>
+          <select
+            aria-label={"Subcategoría de " + category}
+            value={subcategory}
+            onChange={(event) => onSubcategory(event.target.value)}
+          >
+            <option value="">Ver todo en {category}</option>
+            {subcategoriesFor(category).map((name) => (
+              <option key={name}>{name}</option>
+            ))}
+          </select>
+        </label>
+      )}
       <div
         className="sf-catalog-status"
         role="status"
@@ -101,7 +134,7 @@ export default function Catalog({
         aria-atomic="true"
       >
         {products.length > 0
-          ? `${filtered.length} ${filtered.length === 1 ? "detalle" : "detalles"}${category !== "Todos" ? " · " + category : ""}`
+          ? `${filtered.length} ${filtered.length === 1 ? "detalle" : "detalles"}${category !== "Todos" ? " · " + category : ""}${subcategory ? " · " + subcategory : ""}`
           : ""}
       </div>
       {!filtered.length && (
@@ -175,7 +208,7 @@ export default function Catalog({
               </button>
               <div className="sf-product-copy">
                 <span className="sf-product-category">
-                  {product.category || "Regalos"}
+                  {classificationLabel(product)}
                 </span>
                 <h3>
                   <button type="button" onClick={() => onProduct(product)}>

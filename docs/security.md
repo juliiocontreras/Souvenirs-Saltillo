@@ -3,6 +3,8 @@
 - Código y ejemplos pueden compartirse; credenciales, catálogos privados, sesiones y datos de clientes quedan fuera de Git. Evaluar la visibilidad del repositorio según la operación del negocio.
 - Nunca guardar ADMIN_PASSWORD, AUTH_SECRET, MONITOR_SECRET, API keys o tokens en Git.
 - El storefront consume únicamente la proyección pública del producto.
+- Cotizaciones y logos usan una tabla privada separada. Consultar solicitudes, cambiar su seguimiento y descargar adjuntos requiere sesión administrativa; nunca se incluyen en la API del catálogo.
+- El envío de cotizaciones valida origen, autorización de contacto, tipos, límites, firma del archivo y una trampa antispam, con límite persistente de envíos. Los adjuntos se descargan con `nosniff` y sin caché; no se ejecutan en la página.
 - supplier_cost, supplier_url, margen, historial y alternativas son exclusivos del administrador.
 - El importador valida IPv4/IPv6, DNS, credenciales, puertos, límites y redirecciones. En salida directa fija la IP pública; con proxy requiere su control de egress privado. Conserva validación TLS.
 - Los resultados extraídos de sitios externos son datos no confiables: se previsualizan y requieren aprobación.

@@ -1,9 +1,10 @@
-export const STORE_CATEGORIES = [
-  "Todos",
-  "Regalos",
-  "Personalizados",
-  "Empresas y eventos",
-];
+import {
+  PRODUCT_CATEGORY_NAMES,
+  ACCEPTED_CATEGORIES,
+  subcategoriesFor,
+} from "./categories.mjs";
+
+export const STORE_CATEGORIES = ["Todos", ...PRODUCT_CATEGORY_NAMES];
 const sorts = new Set(["recent", "name", "price-low", "price-high"]);
 const normalized = (value) =>
   String(value || "")
@@ -18,10 +19,14 @@ export function readStoreFilters(params = {}) {
       typeof params.get === "function" ? params.get(key) : params[key];
     return typeof value === "string" ? value : "";
   };
+  const category = ACCEPTED_CATEGORIES.includes(get("categoria"))
+    ? get("categoria")
+    : "Todos";
   return {
-    category: STORE_CATEGORIES.includes(get("categoria"))
-      ? get("categoria")
-      : "Todos",
+    category,
+    subcategory: subcategoriesFor(category).includes(get("subcategoria"))
+      ? get("subcategoria")
+      : "",
     query: get("q").slice(0, 240),
     sort: sorts.has(get("orden")) ? get("orden") : "recent",
   };
@@ -49,7 +54,7 @@ export function canSortByPrice(products) {
 }
 export function selectStoreProducts(
   products,
-  { category = "Todos", query = "", sort = "recent" },
+  { category = "Todos", subcategory = "", query = "", sort = "recent" },
 ) {
   const terms = normalized(query).split(/\s+/).filter(Boolean);
   const result = products.filter((product) => {
@@ -58,9 +63,18 @@ export function selectStoreProducts(
       product.category === category ||
       (category === "Personalizados" && product.personalizationSupported);
     const text = normalized(
-      [product.title, product.description, product.category].join(" "),
+      [
+        product.title,
+        product.description,
+        product.category,
+        product.subcategory,
+      ].join(" "),
     );
-    return inCategory && terms.every((term) => text.includes(term));
+    return (
+      inCategory &&
+      (!subcategory || product.subcategory === subcategory) &&
+      terms.every((term) => text.includes(term))
+    );
   });
   if (sort === "name")
     result.sort((a, b) => a.title.localeCompare(b.title, "es-MX"));

@@ -265,7 +265,10 @@ test("currency and variant changes require review and do not modify the public p
 });
 test("alternative identity conflicts are candidates; approved switch keeps the original product and old source", async () => {
   const repository = new MemoryCatalogRepository(),
-    product = await published(repository);
+    product = await published(repository, {
+      category: "Equipaje",
+      subcategory: "Mochilas",
+    });
   const bad = await addAlternative(
     repository,
     product.id,
@@ -289,6 +292,16 @@ test("alternative identity conflicts are candidates; approved switch keeps the o
   const draft = await alternativeImport(repository, product.id, good.id, {
     scrape: (url) => fixtureScrape(url, { price: 90 }),
   });
+  assert.equal(
+    draft.approvedByIdentity[draft.options[draft.selection].identityKey]
+      .category,
+    "Equipaje",
+  );
+  assert.equal(
+    draft.approvedByIdentity[draft.options[draft.selection].identityKey]
+      .subcategory,
+    "Mochilas",
+  );
   assert.equal((await repository.getProduct(product.id)).supplierUrl, primary);
   const updated = await applyImport(
     repository,
@@ -304,6 +317,8 @@ test("alternative identity conflicts are candidates; approved switch keeps the o
   assert.equal(updated.id, product.id);
   assert.equal(updated.supplierUrl, good.url);
   assert.equal(updated.supplierCost, 90);
+  assert.equal(updated.category, "Equipaje");
+  assert.equal(updated.subcategory, "Mochilas");
   assert.equal(
     (await repository.listAlternatives(product.id)).at(-1).url,
     primary,
@@ -388,6 +403,8 @@ test("reimport preview retains manual branding, price and fee policy but refresh
   const repository = new MemoryCatalogRepository();
   await published(repository, {
     title: "Mi taza",
+    category: "Oficina",
+    subcategory: "Libretas",
     publicPrice: 199,
     pricing: { marginPercent: 30, shipping: 10 },
   });
@@ -396,6 +413,8 @@ test("reimport preview retains manual branding, price and fee policy but refresh
   });
   const approved = draft.approvedByIdentity[draft.options[0].identityKey];
   assert.equal(approved.overrides.title, "Mi taza");
+  assert.equal(approved.category, "Oficina");
+  assert.equal(approved.subcategory, "Libretas");
   assert.equal(approved.pricing.shipping, 10);
   assert.equal(approved.publicPrice, 199);
   assert.equal(approved.overrides.supplierCost, undefined);

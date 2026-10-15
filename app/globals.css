@@ -413,6 +413,19 @@ small {
   grid-template-columns: 1fr 1fr;
   gap: 0 12px;
 }
+.classification-editor {
+  margin: 12px 0 20px;
+  padding: 14px 0;
+  border-block: 1px solid #e2e0d8;
+}
+.classification-editor summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.classification-editor form {
+  margin-top: 14px;
+}
 .check {
   display: flex;
   align-items: flex-start;
@@ -652,4 +665,19 @@ details pre {
   * {
     scroll-behavior: auto !important;
   }
+}
+
+.quote-inbox {
+  scroll-margin-top: 20px;
+}
+.quote-request {
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+.quote-description {
+  white-space: pre-wrap;
+}
+.quote-status {
+  max-width: 260px;
+  margin-top: 20px;
 }

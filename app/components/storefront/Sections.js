@@ -1,5 +1,6 @@
 import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
+import { PRODUCT_CATEGORY_NAMES } from "../../../packages/core/categories.mjs";
 export function Hero({ onCategory }) {
   return (
     <>
@@ -134,7 +135,7 @@ export function Collections({ onCategory }) {
     </section>
   );
 }
-export function Personalization({ onCategory }) {
+export function Personalization({ onCategory, onQuote }) {
   return (
     <section
       className="sf-personal"
@@ -157,13 +158,22 @@ export function Personalization({ onCategory }) {
             Un nombre, una fecha, una idea. Descubre los detalles que puedes
             hacer únicos.
           </p>
-          <a
-            className="sf-button"
-            href={categoryHref("Personalizados")}
-            onClick={(event) => onCategory(event, "Personalizados")}
-          >
-            Ver personalizables
-          </a>
+          <div className="sf-personal-actions">
+            <a
+              className="sf-button"
+              href={categoryHref("Personalizados")}
+              onClick={(event) => onCategory(event, "Personalizados")}
+            >
+              Ver personalizables
+            </a>
+            <button
+              type="button"
+              className="sf-button sf-button-outline"
+              onClick={onQuote}
+            >
+              Cotizar mi diseño
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -196,17 +206,15 @@ export function Footer({ onCategory, onFaq }) {
           </div>
           <nav aria-label="Explora la tienda">
             <h3>Explora</h3>
-            {["Todos", "Regalos", "Personalizados", "Empresas y eventos"].map(
-              (category) => (
-                <a
-                  key={category}
-                  href={categoryHref(category)}
-                  onClick={(event) => onCategory(event, category)}
-                >
-                  {category === "Todos" ? "Catálogo" : category}
-                </a>
-              ),
-            )}
+            {["Todos", ...PRODUCT_CATEGORY_NAMES].map((category) => (
+              <a
+                key={category}
+                href={categoryHref(category)}
+                onClick={(event) => onCategory(event, category)}
+              >
+                {category === "Todos" ? "Catálogo" : category}
+              </a>
+            ))}
           </nav>
           <nav aria-label="Información para tu visita">
             <h3>Tu visita</h3>
