@@ -108,7 +108,22 @@ conserva su estado de búsqueda; un error del servidor conserva su aviso de erro
 En móvil y tableta se usa un selector compacto de categoría para que el listado
 ampliado no desplace el contenido varias pantallas.
 
-El teléfono público del negocio se configura en `WHATSAPP_NUMBER`, con código
-de país. Se lee al servir la página y genera un enlace `wa.me` con la categoría y
-el tipo de artículo en el mensaje. Un teléfono ausente o inválido no genera un
-enlace inventado; la tienda ofrece el asistente de solicitud como alternativa.
+## Configurar WhatsApp desde el panel
+
+En **Panel → Configuración → WhatsApp del negocio**, guardar el número público
+con código de país. Para México: `+52` seguido de los diez dígitos. **Probar
+WhatsApp guardado** permite verificar la cuenta de destino. El cambio aparece al
+abrir o recargar la tienda; no requiere reiniciar ni volver a publicar el servidor.
+El mensaje del enlace `wa.me` incluye la categoría y el tipo de artículo elegido.
+
+El dato persiste en `souvenirs_catalog_records`, namespace `settings`, clave
+`publicContact`. Para instalaciones existentes, `WHATSAPP_NUMBER` continúa como
+valor inicial mientras no se haya guardado una configuración. Guardar el campo
+vacío desactiva el enlace incluso si existe ese valor en el servidor. Un teléfono
+ausente o inválido conserva el asistente de solicitud como alternativa.
+
+`GET /api/settings/contact` y `PATCH /api/settings/contact` requieren sesión
+administrativa; la escritura también exige el origen de la tienda. Solo se acepta
+`whatsappNumber`, normalizado a 8–15 dígitos. No se modifican claves privadas,
+productos ni solicitudes de clientes. Esta validación comprueba el formato; el
+administrador debe verificar que el número corresponde a su cuenta de WhatsApp.

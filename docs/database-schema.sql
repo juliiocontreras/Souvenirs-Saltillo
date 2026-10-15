@@ -8,7 +8,7 @@ create table if not exists souvenirs_catalog_records (
   primary key (namespace, key)
 );
 
--- Namespaces: products, checks, alternatives, drafts, sessions, attempts, runs, leases, searchUsage.
+-- Namespaces: products, checks, alternatives, drafts, sessions, attempts, runs, leases, searchUsage, settings.
 -- products: full private product; API projects only approved public fields.
 -- checks: up to 200 observations per product, approved values remain separate.
 -- alternatives: up to 20 candidates per product with identity and health status.
@@ -18,6 +18,8 @@ create table if not exists souvenirs_catalog_records (
 -- runs: latest 50 batches, status, counts, search results and pending sources.
 -- leases: monitor/import owner and expiry for concurrency control.
 -- searchUsage: provider + UTC month, conservative reserved calls; no API keys.
+-- settings/publicContact: public business WhatsApp number and update timestamp.
+-- An explicit empty WhatsApp number disables the link, including any environment fallback.
 
 -- Private customer quote requests and attachments, separate from catalog reads.
 create table if not exists souvenirs_quote_requests (
