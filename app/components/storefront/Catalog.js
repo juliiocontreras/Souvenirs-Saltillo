@@ -4,8 +4,10 @@ import {
   classificationLabel,
   subcategoriesFor,
 } from "../../../packages/core/categories.mjs";
+import { whatsappContactUrl } from "../../../packages/core/contact.mjs";
 import {
   STORE_CATEGORIES,
+  selectStoreProducts,
   canSortByPrice,
   deliveryLabel,
   publicPriceLabel,
@@ -14,6 +16,8 @@ export default function Catalog({
   products,
   filtered,
   unavailable,
+  whatsappNumber,
+  onQuote,
   category,
   subcategory,
   query,
@@ -26,6 +30,15 @@ export default function Catalog({
   onProduct,
   searchRef,
 }) {
+  const pendingCategory =
+    !unavailable &&
+    (!products.length ||
+      (category !== "Todos" &&
+        !selectStoreProducts(products, { category, subcategory }).length));
+  const whatsappUrl = whatsappContactUrl(whatsappNumber, {
+    category,
+    subcategory,
+  });
   return (
     <section
       className="sf-catalog sf-container"
@@ -68,6 +81,21 @@ export default function Catalog({
         </div>
       </div>
       <div className="sf-catalog-toolbar">
+        <label className="sf-category-picker">
+          <span className="sr-only">Categoría del catálogo</span>
+          <select
+            aria-label="Categoría del catálogo"
+            value={category}
+            onChange={(event) => onCategory(event.target.value)}
+          >
+            {STORE_CATEGORIES.map((name) => (
+              <option key={name}>{name}</option>
+            ))}
+            {!STORE_CATEGORIES.includes(category) && (
+              <option>{category}</option>
+            )}
+          </select>
+        </label>
         <div className="sf-category-tabs" role="group" aria-label="Categorías">
           {STORE_CATEGORIES.map((name) => (
             <button
@@ -142,16 +170,23 @@ export default function Catalog({
           className="sf-catalog-empty"
           role={unavailable ? "alert" : undefined}
         >
-          <Icon name={products.length ? "search" : "gift"} size={52} />
+          {!pendingCategory && (
+            <Icon name={products.length ? "search" : "gift"} size={52} />
+          )}
           <h3>
-            {unavailable
-              ? "El catálogo estará de vuelta"
-              : products.length
-                ? "Ese detalle aún no aparece"
-                : "Lo bonito está por llegar"}
+            {pendingCategory
+              ? subcategory ||
+                (category === "Todos" ? "Próximamente" : category)
+              : unavailable
+                ? "El catálogo estará de vuelta"
+                : products.length
+                  ? "Ese detalle aún no aparece"
+                  : "Lo bonito está por llegar"}
           </h3>
           <p>
-            {unavailable ? (
+            {pendingCategory ? (
+              "Estamos trabajando para brindarte estas opciones de souvenir"
+            ) : unavailable ? (
               "No pudimos cargar los detalles en este momento. Inténtalo de nuevo en unos minutos."
             ) : products.length ? (
               "Prueba otro nombre o explora una categoría diferente."
@@ -163,7 +198,25 @@ export default function Catalog({
               </>
             )}
           </p>
-          {unavailable ? (
+          {pendingCategory ? (
+            <>
+              <p>Escríbenos por WhatsApp y cuéntanos qué souvenir necesitas.</p>
+              {whatsappUrl ? (
+                <a
+                  className="sf-button sf-whatsapp-contact"
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Consultar por WhatsApp <Icon name="arrow" size={18} />
+                </a>
+              ) : (
+                <button type="button" className="sf-button" onClick={onQuote}>
+                  Solicitar información
+                </button>
+              )}
+            </>
+          ) : unavailable ? (
             <button
               type="button"
               className="sf-inline-link"

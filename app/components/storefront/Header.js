@@ -2,22 +2,28 @@
 import { useEffect, useRef, useState } from "react";
 import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
+import { PRODUCT_CATEGORIES } from "../../../packages/core/categories.mjs";
 
 export default function Header({ onCategory, onSearch, onQuote }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const header = useRef(null),
     menuButton = useRef(null),
+    catalog = useRef(null),
     occasions = useRef(null);
   useEffect(() => {
     function closeOutside(event) {
       if (!header.current?.contains(event.target)) {
         setMenuOpen(false);
         if (occasions.current) occasions.current.open = false;
+        if (catalog.current) catalog.current.open = false;
       }
     }
     function escape(event) {
       if (event.key !== "Escape") return;
-      if (occasions.current?.open) {
+      if (catalog.current?.open) {
+        catalog.current.open = false;
+        catalog.current.querySelector("summary")?.focus();
+      } else if (occasions.current?.open) {
         occasions.current.open = false;
         occasions.current.querySelector("summary")?.focus();
       } else if (menuOpen) {
@@ -26,7 +32,11 @@ export default function Header({ onCategory, onSearch, onQuote }) {
       }
     }
     function desktop(event) {
-      if (event.matches) setMenuOpen(false);
+      if (event.matches) {
+        setMenuOpen(false);
+        if (catalog.current) catalog.current.open = false;
+        if (occasions.current) occasions.current.open = false;
+      }
     }
     const media = window.matchMedia("(min-width: 1041px)");
     media.addEventListener("change", desktop);
@@ -41,6 +51,7 @@ export default function Header({ onCategory, onSearch, onQuote }) {
   function closeMenus() {
     setMenuOpen(false);
     if (occasions.current) occasions.current.open = false;
+    if (catalog.current) catalog.current.open = false;
   }
   function choose(event, category) {
     onCategory(event, category);
@@ -66,13 +77,50 @@ export default function Header({ onCategory, onSearch, onQuote }) {
           >
             Inicio
           </a>
-          <a
-            href={categoryHref("Todos")}
-            onClick={(event) => choose(event, "Todos")}
+          <details
+            className="sf-occasions sf-catalog-menu"
+            ref={catalog}
+            onToggle={(event) => {
+              if (event.currentTarget.open && occasions.current)
+                occasions.current.open = false;
+            }}
           >
-            Catálogo
-          </a>
-          <details className="sf-occasions" ref={occasions}>
+            <summary>
+              Catálogo <Icon name="chevron" size={13} />
+            </summary>
+            <nav
+              className="sf-catalog-dropdown"
+              aria-label="Categorías del catálogo"
+            >
+              <a
+                className="sf-catalog-all"
+                href={categoryHref("Todos")}
+                onClick={(event) => choose(event, "Todos")}
+              >
+                Ver todo el catálogo <Icon name="arrow" size={16} />
+              </a>
+              {PRODUCT_CATEGORIES.map(({ name, subcategories }) => (
+                <a
+                  key={name}
+                  href={categoryHref(name)}
+                  onClick={(event) => choose(event, name)}
+                >
+                  <span>{name}</span>
+                  {subcategories.length > 0 && (
+                    <small>{subcategories.join(", ")}</small>
+                  )}
+                </a>
+              ))}
+            </nav>
+          </details>
+          <details
+            className="sf-occasions"
+            ref={occasions}
+            onToggle={(event) => {
+              if (event.currentTarget.open && catalog.current)
+                catalog.current.open = false;
+            }}
+          >
             <summary>
               Ocasiones <Icon name="chevron" size={13} />
             </summary>

@@ -206,15 +206,17 @@ export function Footer({ onCategory, onFaq }) {
           </div>
           <nav aria-label="Explora la tienda">
             <h3>Explora</h3>
-            {["Todos", ...PRODUCT_CATEGORY_NAMES].map((category) => (
-              <a
-                key={category}
-                href={categoryHref(category)}
-                onClick={(event) => onCategory(event, category)}
-              >
-                {category === "Todos" ? "Catálogo" : category}
-              </a>
-            ))}
+            {["Todos", ...PRODUCT_CATEGORY_NAMES.slice(0, 6)].map(
+              (category) => (
+                <a
+                  key={category}
+                  href={categoryHref(category)}
+                  onClick={(event) => onCategory(event, category)}
+                >
+                  {category === "Todos" ? "Catálogo" : category}
+                </a>
+              ),
+            )}
           </nav>
           <nav aria-label="Información para tu visita">
             <h3>Tu visita</h3>

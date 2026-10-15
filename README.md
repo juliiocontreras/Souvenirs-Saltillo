@@ -5,7 +5,7 @@ Aplicación Next.js con catálogo público y panel administrativo para souvenirs
 ## Lo implementado
 
 - `/`: catálogo de productos aprobados, imágenes, precio, entrega, búsqueda y categorías.
-- Categorías Oficina, Equipaje, Electrónica, Deportes, Cuidado personal y Llaveros, con subcategorías y clasificación editable desde el panel.
+- 18 familias de souvenirs y promocionales en el submenú Catálogo, con subcategorías y clasificación editable desde el panel. Las familias vacías invitan a consultar por WhatsApp.
 - Asistente guiado de cotización: contacto, características, cantidad, logo, entrega, factura y urgencia; folio y seguimiento privado en el panel.
 - `/login` y `/admin`: sesión protegida, revocable y con expiración; errores de acceso y cierre de sesión.
 - Importación por URL con JSON-LD o metadatos: título, descripción, imágenes, costo, moneda, entrega publicada, identidad, variantes y evidencia. Los campos ausentes quedan pendientes.
