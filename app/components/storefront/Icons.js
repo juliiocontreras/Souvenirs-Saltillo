@@ -59,19 +59,13 @@ export function Wordmark({ footer = false }) {
       href="/"
       aria-label="Souvenirs Saltillo, inicio"
     >
-      {!footer && (
-        <img
-          className="sf-brand-symbol"
-          src="/images/brand-mark.png"
-          alt=""
-          width="58"
-          height="62"
-        />
-      )}
-      <span>
-        <span className="sf-wordmark-name">Souvenirs</span>
-        <span className="sf-wordmark-city">Saltillo</span>
-      </span>
+      <img
+        className="sf-logo"
+        src="/images/souvenirs-saltillo-logo.webp"
+        alt="Souvenirs Saltillo"
+        width="665"
+        height="221"
+      />
     </a>
   );
 }
