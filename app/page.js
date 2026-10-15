@@ -16,6 +16,7 @@ export default async function Home({ searchParams }) {
     <Storefront
       products={products}
       unavailable={unavailable}
+      whatsappNumber={process.env.WHATSAPP_NUMBER || ""}
       initialFilters={readStoreFilters(await searchParams)}
     />
   );

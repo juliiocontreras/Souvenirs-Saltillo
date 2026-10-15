@@ -13,7 +13,16 @@ import { MemoryCatalogRepository } from "../packages/core/repository.mjs";
 import { updateProductClassification } from "../lib/catalog-service.mjs";
 
 test("taxonomy accepts requested product families and prevents cross-category subcategories", () => {
-  assert.equal(PRODUCT_CATEGORY_NAMES.length, 6);
+  assert.ok(
+    [
+      "Oficina",
+      "Equipaje",
+      "Electrónica",
+      "Deportes",
+      "Cuidado personal",
+      "Llaveros",
+    ].every((name) => PRODUCT_CATEGORY_NAMES.includes(name)),
+  );
   assert.deepEqual(
     validateClassification({ category: "Electrónica", subcategory: "Relojes" }),
     { category: "Electrónica", subcategory: "Relojes" },

@@ -80,3 +80,35 @@ Se intentó abrir el sitio proporcionado por el propietario. Mostró “Log in t
 access” de ChatGPT, por lo que no se pudo auditar su contenido interno. El
 propietario confirmó personalización y cotización como las funciones a incorporar.
 No se atribuyen funciones adicionales a esa referencia sin haberlas observado.
+
+## Ampliación del submenú de souvenirs
+
+El submenú **Catálogo** incorpora también Tazas y termos, Textiles y gorras,
+Hogar y cocina, Ecológicos, Herramientas y automotriz, Paraguas e impermeables,
+Infantiles y juegos, Hieleras y loncheras, Bar y vinos, Mascotas, Sets de regalo
+y Souvenirs de Saltillo. Todas las familias están disponibles en el panel y
+el asistente para clasificar o solicitar artículos, aunque todavía estén vacías.
+
+Se contrastaron categorías con la navegación pública de:
+
+- [PromoOpción México](https://www.promoopcion.com/): termos, cilindros, gorras,
+  herramientas, hieleras y recomendaciones ecológicas.
+- [Caravian](https://caravian.com.mx/catalogos/): hogar, automotriz, textiles,
+  paraguas, sets y accesorios promocionales.
+- [Arte Promocional y Textil](https://artepromocionalmx.com/): bar y vinos,
+  infantiles, mascotas, impermeables y otras familias de regalos.
+
+La familia de Saltillo agrupa imanes, postales, artesanías y recuerdos regionales
+como línea de cotización. La presencia de una categoría no anuncia existencias.
+
+Al seleccionar una categoría o subcategoría vacía se muestra **“Estamos trabajando
+para brindarte estas opciones de souvenir”**, con invitación de contacto por
+WhatsApp. Una búsqueda sin coincidencias dentro de una categoría con artículos
+conserva su estado de búsqueda; un error del servidor conserva su aviso de error.
+En móvil y tableta se usa un selector compacto de categoría para que el listado
+ampliado no desplace el contenido varias pantallas.
+
+El teléfono público del negocio se configura en `WHATSAPP_NUMBER`, con código
+de país. Se lee al servir la página y genera un enlace `wa.me` con la categoría y
+el tipo de artículo en el mensaje. Un teléfono ausente o inválido no genera un
+enlace inventado; la tienda ofrece el asistente de solicitud como alternativa.

@@ -22,6 +22,7 @@ import Icon from "./storefront/Icons";
 export default function Storefront({
   products,
   unavailable,
+  whatsappNumber = "",
   initialFilters = readStoreFilters(),
 }) {
   const [category, setCategory] = useState(initialFilters.category);
@@ -133,6 +134,8 @@ export default function Storefront({
           products={products}
           filtered={filtered}
           unavailable={unavailable}
+          whatsappNumber={whatsappNumber}
+          onQuote={() => setQuoteOpen(true)}
           category={category}
           subcategory={subcategory}
           query={query}
