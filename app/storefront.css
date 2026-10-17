@@ -1830,6 +1830,30 @@
 .sf-quote-success p {
   margin-bottom: 18px;
 }
+.sf-detail-quote {
+  margin-top: 24px;
+}
+.sf-detail-quote p {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--sf-muted);
+}
+.sf-quote-context {
+  padding: 18px;
+  margin-bottom: 24px;
+  background: var(--sf-cream);
+  border: 1px solid var(--sf-line);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.sf-quote-context p {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.sf-quote-context strong {
+  display: block;
+  margin-bottom: 12px;
+}
 .sf-quote-success h4 {
   font-size: 16px;
   margin: 24px 0 12px;

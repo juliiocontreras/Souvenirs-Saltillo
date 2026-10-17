@@ -19,6 +19,7 @@ import {
   selectStoreProducts,
   publicPriceLabel,
 } from "../../../packages/core/storefront.mjs";
+import { quoteSelection, applyQuoteSelection } from "../../../packages/core/quote-context.mjs";
 
 const steps = ["Contacto", "Pedido", "Diseño y entrega", "Revisar"];
 const initial = () => ({
@@ -47,6 +48,7 @@ export default function QuoteAssistant({
   onClose,
   products,
   onCategory,
+  context,
 }) {
   const [value, setValue] = useState(initial);
   const [step, setStep] = useState(0),
@@ -54,6 +56,7 @@ export default function QuoteAssistant({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [receipt, setReceipt] = useState(null);
+  const [pendingSelection, setPendingSelection] = useState(null);
   const ref = useRef(null),
     body = useRef(null),
     form = useRef(null),
@@ -64,14 +67,28 @@ export default function QuoteAssistant({
       if (ref.current?.open) ref.current.close();
       return;
     }
-    if (!value.id) setValue((old) => ({ ...old, id: crypto.randomUUID() }));
+    const selection = quoteSelection(context);
+    if (!value.id || (receipt && selection.label)) {
+      setValue(applyQuoteSelection({ ...initial(), id: crypto.randomUUID() }, selection));
+      setStep(0);
+      setLogo(null);
+      setReceipt(null);
+      setError("");
+      setPendingSelection(null);
+    } else {
+      const changed = selection.label && (
+        (selection.category && (selection.category !== value.category || selection.subcategory !== value.subcategory)) ||
+        (selection.description && !value.description.includes(selection.description))
+      );
+      setPendingSelection(changed ? selection : null);
+    }
     ref.current.showModal();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previous;
     };
-  }, [open]);
+  }, [open, context]);
   useEffect(() => {
     if (body.current) body.current.scrollTop = 0;
     if (open) heading.current?.focus({ preventScroll: true });
@@ -201,6 +218,27 @@ export default function QuoteAssistant({
       <div className="sf-quote-body" ref={body}>
         {!receipt ? (
           <>
+            {pendingSelection && (
+              <aside className="sf-quote-context" aria-label="Nueva selección para tu solicitud">
+                <p>Ya tienes una solicitud en curso. ¿Quieres usar esta selección?</p>
+                <strong>{pendingSelection.label}</strong>
+                <p>Conservaremos tus datos de contacto y los detalles que ya escribiste.</p>
+                <div className="sf-quote-actions">
+                  <button type="button" className="sf-button sf-button-outline" disabled={busy} onClick={() => {
+                    try {
+                      const updated = applyQuoteSelection(value, pendingSelection);
+                      setValue(updated);
+                      setPendingSelection(null);
+                      setError("");
+                      setStep(Math.min(step, 1));
+                    } catch (failure) {
+                      setError(failure.message);
+                    }
+                  }}>Usar esta selección</button>
+                  <button type="button" className="sf-inline-link" disabled={busy} onClick={() => setPendingSelection(null)}>Continuar mi solicitud</button>
+                </div>
+              </aside>
+            )}
             <p className="sf-quote-step" ref={heading} tabIndex={-1}>
               Paso {step + 1} de 4
             </p>
@@ -345,9 +383,11 @@ export default function QuoteAssistant({
               type="button"
               className="sf-button sf-button-outline"
               onClick={() => {
-                setValue({ ...initial(), id: crypto.randomUUID() });
+                setValue(applyQuoteSelection({ ...initial(), id: crypto.randomUUID() }, quoteSelection(context)));
                 setLogo(null);
                 setReceipt(null);
+                setPendingSelection(null);
+                setError("");
                 setStep(0);
               }}
             >

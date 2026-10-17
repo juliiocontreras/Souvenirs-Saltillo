@@ -29,6 +29,19 @@ categoría se envuelven en varias líneas para seguir visibles en pantallas pequ
 Se abre desde **Cotizar**, **Cotiza tu idea** y **Cotizar mi diseño**. Se admiten
 los enlaces `/#cotizar` y `/#personaliza`. Es una atención automática guiada:
 
+**Solicitar información** y **Cotizar** llevan la categoría y subcategoría
+seleccionadas al pedido. En cada ficha, **Cotizar este artículo** también añade
+el título público a las características; no copia datos privados del proveedor.
+El primer paso sigue siendo el contacto del cliente.
+
+Si existe una solicitud sin enviar, una selección diferente se propone antes de
+cambiar el pedido. **Usar esta selección** conserva contacto, cantidad, fecha,
+logo y características previas; el nuevo artículo se incorpora sin duplicarlo y
+la autorización de contacto debe marcarse de nuevo. **Continuar mi solicitud**
+conserva el borrador anterior. Si el texto combinado supera el límite, se informa
+al cliente sin recortar sus requisitos. Cerrar y volver a abrir conserva el
+borrador en memoria; recargar la página lo descarta.
+
 1. Contacto: nombre, empresa opcional, medio preferido y teléfono o correo.
 2. Pedido: categoría, tipo, cantidad, características y presupuesto opcional.
 3. Diseño y entrega: logo disponible, ayuda con diseño o sin logo; archivo opcional;

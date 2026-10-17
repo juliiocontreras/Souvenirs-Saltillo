@@ -7,6 +7,7 @@ Aplicación Next.js con catálogo público y panel administrativo para souvenirs
 - `/`: catálogo de productos aprobados, imágenes, precio, entrega, búsqueda y categorías.
 - 18 familias de souvenirs y promocionales en el submenú Catálogo, con subcategorías y clasificación editable desde el panel. Las familias vacías invitan a consultar por WhatsApp.
 - Asistente guiado de cotización: contacto, características, cantidad, logo, entrega, factura y urgencia; folio y seguimiento privado en el panel.
+- Cotización desde la ficha de producto o categoría, con selección precargada y conservación del borrador al cambiar de artículo.
 - `/login` y `/admin`: sesión protegida, revocable y con expiración; errores de acceso y cierre de sesión.
 - Importación por URL con JSON-LD o metadatos: título, descripción, imágenes, costo, moneda, entrega publicada, identidad, variantes y evidencia. Los campos ausentes quedan pendientes.
 - Vista previa editable, precio sugerido con margen bruto/flete/comisiones/impuesto, precio manual, borrador y aprobación antes de publicar.
@@ -35,6 +36,11 @@ npm run monitor:suppliers -- --force
 ```
 
 Las pruebas de PostgreSQL se activan con `TEST_DATABASE_URL` sobre una base **temporal exclusiva de pruebas**. CI levanta y elimina PostgreSQL automáticamente. La verificación de navegador opcional es `python3 scripts/ui-smoke.py`, con Playwright y Chromium en `/usr/bin/chromium`; usa credenciales temporales y fichas sintéticas servidas por HTTPbin. No se crean productos de demostración en la base del usuario.
+
+Para comprobar el flujo de cotización desde categorías y fichas, ejecutar
+`npm run build` y `python3 scripts/quote-context-smoke.py`. Esta verificación
+usa únicamente un catálogo local temporal, conserva requisitos al cambiar de
+artículo y comprueba el envío, el folio y la vista móvil sin servicios externos.
 
 ## Primer despliegue
 
