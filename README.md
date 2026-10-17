@@ -44,6 +44,11 @@ artículo y comprueba el envío, el folio y la vista móvil sin servicios extern
 
 ## Primer despliegue
 
+Para conectar `suvenirssaltillo.shop` con planes gratuitos, está preparada la
+[configuración de Netlify y Neon](docs/netlify-free.md), con copia transaccional
+de los datos y monitor de cuatro horas desde GitHub. Esto no implica que el
+dominio ya esté conectado ni que se hayan trasladado datos de producción.
+
 Seguir [docs/deployment.md](docs/deployment.md). El sitio actual utiliza PostgreSQL y el scheduler de BasicDeploy; el cron de GitHub permanece desactivado. Tavily ya está conectado en producción. Hosting serverless requiere PostgreSQL; no guardar el catálogo en memoria ni en disco efímero. Los horarios se muestran en Saltillo/Ciudad de México.
 
 La búsqueda automática usa `SEARCH_PROVIDER=tavily` y `SEARCH_API_KEY`, con búsquedas básicas de un crédito. El límite `SEARCH_MONTHLY_LIMIT=900` se reserva en PostgreSQL antes de cada intento, incluidos fallos; no supera 900 aunque se configure un valor mayor. Al agotarse se pausa únicamente la búsqueda hasta el siguiente mes UTC: el monitor de enlaces sigue funcionando. Sin clave, el panel lo indica y conserva alternativas manuales. Brave sigue disponible como adaptador opcional. El monitor guarda propuestas y mantiene los datos públicos aprobados; no publica cambios ni cambia proveedor de forma silenciosa.

@@ -1004,6 +1004,8 @@ export default function AdminPanel({
                   .map((status) => (
                     <small key={status}>
                       {{
+                        scheduled:
+                          "La búsqueda completa se realiza desde el monitor programado.",
                         budget_exhausted:
                           "Búsqueda pausada: límite mensual de la tienda alcanzado.",
                         quota_exhausted:

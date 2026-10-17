@@ -1,4 +1,24 @@
 export const REVIEW_INTERVAL = 4 * 60 * 60 * 1000;
+
+export function monitorRunSummary(run) {
+  return {
+    status: run.status,
+    checked: run.checked || 0,
+    remaining: run.remaining || 0,
+    added: run.added || 0,
+    issues: run.issues?.length || 0,
+    searches: run.search?.length || 0,
+  };
+}
+
+export function webMonitorOptions(env = process.env) {
+  return env.MONITOR_WEB_MODE === "light"
+    ? {
+        batchSize: 1,
+        search: async () => ({ status: "scheduled", urls: [] }),
+      }
+    : {};
+}
 // GitHub workflow: minute 17 of each UTC hour divisible by four.
 export function nextReviewAt(now = Date.now()) {
   return new Date(

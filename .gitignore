@@ -6,6 +6,7 @@ build/
 .env.*
 !.env.example
 .vercel/
+.netlify/
 coverage/
 .DS_Store
 *.log

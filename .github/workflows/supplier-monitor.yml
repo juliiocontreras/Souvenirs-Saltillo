@@ -3,13 +3,40 @@ on:
   schedule:
     - cron: "17 */4 * * *"
   workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: supplier-monitor
+  cancel-in-progress: false
 jobs:
   monitor:
     if: github.event_name == 'workflow_dispatch' || vars.MONITOR_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4
+        if: vars.MONITOR_TRANSPORT == 'database'
+      - uses: actions/setup-node@v4
+        if: vars.MONITOR_TRANSPORT == 'database'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: vars.MONITOR_TRANSPORT == 'database'
+      - name: Review suppliers directly against persistent PostgreSQL
+        if: vars.MONITOR_TRANSPORT == 'database'
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ secrets.MONITOR_DATABASE_URL }}
+          SEARCH_PROVIDER: tavily
+          SEARCH_API_KEY: ${{ secrets.SEARCH_API_KEY }}
+          SEARCH_MONTHLY_LIMIT: "900"
+          MONITOR_BATCH_SIZE: "2"
+        run: |
+          test -n "$DATABASE_URL"
+          npm run monitor:suppliers
       - name: Trigger supplier monitor
+        if: vars.MONITOR_TRANSPORT != 'database'
         env:
           MONITOR_URL: ${{ secrets.MONITOR_URL }}
           MONITOR_SECRET: ${{ secrets.MONITOR_SECRET }}

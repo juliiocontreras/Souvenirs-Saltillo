@@ -7,12 +7,20 @@
 - Panel previsto: `https://suvenirssaltillo.shop/login`.
 - Dirección actual verificada del hosting: `https://r1q3g0ao.basicdeploy.com`.
 
-El 17 de octubre de 2026, los resolutores públicos de Google y Cloudflare
-devolvieron NXDOMAIN para el dominio proporcionado. Esto indica que no está
-resolviendo públicamente; no prueba por sí solo el estado de la compra.
-El nombre exacto y el estado activo fueron confirmados por el propietario.
+El 17 de octubre de 2026 el dominio comenzó a resolver públicamente en Google y
+Cloudflare con `ns63.domaincontrol.com` y `ns64.domaincontrol.com`. El registro
+raíz seguía apuntando al estacionamiento de GoDaddy y `www` era alias del raíz.
+El propietario confirmó el nombre exacto y el estado activo.
 
-## Conexión en GoDaddy y el hosting
+BasicDeploy Free no permite dominios propios y su documentación limita la
+conexión directa de sus planes de pago a subdominios. El propietario eligió
+mantener el hosting gratuito. La alternativa preparada es [Netlify Free con
+Neon Free](netlify-free.md), que admite dominio raíz y `www`.
+
+## Secuencia de conexión
+
+Aplicar los registros que proporcione el proyecto definitivo de Netlify según
+la guía anterior; esta secuencia explica las condiciones generales del cambio.
 
 1. En GoDaddy, abrir **Mis productos → Dominios → suvenirssaltillo.shop → DNS**.
    Confirmar que el dominio esté activo y revisar qué servidores de nombres

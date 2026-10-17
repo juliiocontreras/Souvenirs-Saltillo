@@ -8,6 +8,7 @@ import {
 import { apiError } from "../../../../lib/api-response.mjs";
 import { catalogRepository } from "../../../../lib/catalog-store.mjs";
 import { runSupplierMonitor } from "../../../../lib/supplier-monitor.mjs";
+import { webMonitorOptions } from "../../../../packages/core/monitor.mjs";
 export const maxDuration = 300;
 export async function POST(request) {
   try {
@@ -28,7 +29,10 @@ export async function POST(request) {
       const body = await jsonBody(request);
       force = body.force === true;
     }
-    const run = await runSupplierMonitor(catalogRepository, { force });
+    const run = await runSupplierMonitor(catalogRepository, {
+      force,
+      ...webMonitorOptions(),
+    });
     return NextResponse.json(run, {
       status:
         run.status === "failed"
