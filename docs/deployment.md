@@ -5,6 +5,9 @@ sitio está publicado en BasicDeploy; consultar [production-state.md](production
 para el estado verificado y el paso pendiente de Tavily. Esta guía permite
 reproducir la configuración en otro entorno.
 
+El dominio indicado es `suvenirssaltillo.shop`, administrado en GoDaddy. Ver
+[conexión del dominio](custom-domain.md) antes de cambiar el origen del servidor.
+
 ## Desarrollo local
 
 1. `npm ci` con Node 22.19 o posterior.
