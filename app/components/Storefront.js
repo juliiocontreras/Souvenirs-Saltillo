@@ -34,13 +34,21 @@ export default function Storefront({
   const [product, setProduct] = useState(null),
     [faq, setFaq] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [quoteContext, setQuoteContext] = useState(null);
+  function openQuote(context = { category, subcategory }) {
+    setQuoteContext(context);
+    setQuoteOpen(true);
+  }
   useEffect(() => {
     const openFromHash = () => {
       if (
         window.location.hash === "#personaliza" ||
         window.location.hash === "#cotizar"
-      )
+      ) {
+        const filters = readStoreFilters(new URLSearchParams(window.location.search));
+        setQuoteContext({ category: filters.category, subcategory: filters.subcategory });
         setQuoteOpen(true);
+      }
     };
     openFromHash();
     window.addEventListener("hashchange", openFromHash);
@@ -118,7 +126,7 @@ export default function Storefront({
   return (
     <div className="storefront">
       <Header
-        onQuote={() => setQuoteOpen(true)}
+        onQuote={() => openQuote()}
         onCategory={navigateCategory}
         onSearch={() => {
           document
@@ -135,7 +143,7 @@ export default function Storefront({
           filtered={filtered}
           unavailable={unavailable}
           whatsappNumber={whatsappNumber}
-          onQuote={() => setQuoteOpen(true)}
+          onQuote={() => openQuote()}
           category={category}
           subcategory={subcategory}
           query={query}
@@ -153,7 +161,7 @@ export default function Storefront({
         />
         <Personalization
           onCategory={navigateCategory}
-          onQuote={() => setQuoteOpen(true)}
+          onQuote={() => openQuote()}
         />
         <About />
       </main>
@@ -161,7 +169,7 @@ export default function Storefront({
       <button
         type="button"
         className="sf-quote-launcher"
-        onClick={() => setQuoteOpen(true)}
+        onClick={() => openQuote()}
         aria-haspopup="dialog"
         aria-label="Cotiza tu idea"
       >
@@ -174,6 +182,7 @@ export default function Storefront({
         open={quoteOpen}
         onClose={closeQuote}
         products={products}
+        context={quoteContext}
         onCategory={navigateCategory}
       />
       {product && (
@@ -181,6 +190,14 @@ export default function Storefront({
           key={product.id}
           product={product}
           onClose={() => setProduct(null)}
+          onQuote={() => {
+            setProduct(null);
+            openQuote({
+              category: product.category,
+              subcategory: product.subcategory,
+              productTitle: product.title,
+            });
+          }}
         />
       )}
       {faq && <FaqDialog onClose={() => setFaq(false)} />}

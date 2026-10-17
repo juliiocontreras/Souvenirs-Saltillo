@@ -59,7 +59,7 @@ function Dialog({ titleId, onClose, className = "", children }) {
     </dialog>
   );
 }
-export function ProductDialog({ product, onClose }) {
+export function ProductDialog({ product, onClose, onQuote }) {
   const [imageIndex, setImageIndex] = useState(0);
   const images = product.images || [];
   return (
@@ -121,6 +121,12 @@ export function ProductDialog({ product, onClose }) {
                 personalización y destino.
               </p>
             </div>
+          </div>
+          <div className="sf-detail-quote">
+            <button type="button" className="sf-button" onClick={onQuote}>
+              Cotizar este artículo <Icon name="arrow" size={18} />
+            </button>
+            <p>Cuéntanos la cantidad, el diseño y la fecha que necesitas.</p>
           </div>
         </div>
       </div>

@@ -127,9 +127,10 @@ export function OrderFields({ value, change }) {
         />
       </label>
       <label>
-        Características del pedido
+        <span id="quote-description-label">Características del pedido</span>
         <textarea
           name="description"
+          aria-labelledby="quote-description-label"
           rows={4}
           placeholder="Artículo, colores, materiales, personalización y para qué ocasión lo necesitas…"
           value={value.description}
