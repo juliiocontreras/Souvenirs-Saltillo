@@ -1,0 +1,38 @@
+# Existing Neon database only: no Render database, disk or paid cron.
+services:
+  - type: web
+    name: suvenirssaltillo
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    buildCommand: bash ops/render-build.sh
+    startCommand: bash ops/render-start.sh
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: MONITOR_SECRET
+        generateValue: true
+      - key: MONITOR_WEB_MODE
+        value: light
+      - key: MONITOR_BATCH_SIZE
+        value: "1"
+      - key: MONITOR_SCHEDULER_CONFIGURED
+        value: "false"
+      - key: DEFAULT_MARGIN_PERCENT
+        value: "40"
+      - key: SEARCH_PROVIDER
+        value: tavily
+      - key: SEARCH_API_KEY
+        sync: false
+      - key: SEARCH_MONTHLY_LIMIT
+        value: "900"
