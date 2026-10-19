@@ -24,7 +24,7 @@ export default function LoginForm() {
     }
   }
   return (
-    <form onSubmit={submit} aria-busy={busy}>
+    <form method="post" onSubmit={submit} aria-busy={busy}>
       <label className="field">
         Contraseña
         <input
