@@ -67,6 +67,13 @@ servidor. No publicar `.next` directamente con `--no-build`: el servidor puede
 responder mientras los archivos públicos devuelven 404 y la página queda sin
 estilos ni controles interactivos.
 
+Si la compilación se hizo por separado, usar `netlify build --offline --context
+production` y después `netlify deploy --prod --no-build --dir .netlify/static`.
+Comprobar que los artefactos del servidor también están preparados. Si Netlify
+rechaza la publicación por cuota agotada, detener los intentos: cambiar el
+directorio no resuelve ese bloqueo. La alternativa preparada está en
+[Render Free](render-free.md).
+
 Preparar un respaldo privado de las dos tablas antes del traslado. Detener las
 escrituras de la aplicación de origen y su scheduler durante la copia y el
 cambio de dominio; mantenerlos detenidos hasta terminar para evitar divergencias.
