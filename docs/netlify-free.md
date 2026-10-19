@@ -60,6 +60,13 @@ a su contenedor; no se puede reutilizar su URL directamente desde Netlify.
 
 ## Copiar el estado persistente
 
+Para publicar desde la CLI, ejecutar `netlify deploy --prod --context production`
+con la compilación habilitada. El adaptador de Next.js ajusta el directorio de
+publicación a `.netlify/static` e incluye imágenes, CSS y JavaScript junto al
+servidor. No publicar `.next` directamente con `--no-build`: el servidor puede
+responder mientras los archivos públicos devuelven 404 y la página queda sin
+estilos ni controles interactivos.
+
 Preparar un respaldo privado de las dos tablas antes del traslado. Detener las
 escrituras de la aplicación de origen y su scheduler durante la copia y el
 cambio de dominio; mantenerlos detenidos hasta terminar para evitar divergencias.
