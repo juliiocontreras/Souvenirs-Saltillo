@@ -10,6 +10,10 @@ La skill es un flujo reutilizable; no ejecuta por sí sola un cron, no instala u
 - `lib/catalog-service.mjs`: borrador, edición y aplicación idempotente al catálogo.
 - `lib/supplier-monitor.mjs`: leases, lotes, historial, búsqueda Tavily y selección revisada de alternativas.
 - `.github/workflows/supplier-monitor.yml`: ejemplo de programación cada cuatro horas.
+- `ops/cloudflare-monitor/`: programador HTTP para Cloudflare Workers con lotes,
+  reintentos acotados, límite de duración y prueba manual autenticada.
+- `docs/cloudflare-monitor.md`: activar esa alternativa, verificar costo/ejecución
+  y retirar el programador anterior. La configuración no implica activación.
 - `docs/deployment.md`: configuración de persistencia, acceso y secretos del hosting.
 
 Reutilizar el backend y la autenticación del proyecto receptor. El transporte y la proyección pública se adaptan a sus permisos, tipo de imagen, moneda, unidad, impuestos y tiempos. No copiar valores de credenciales ni datos de la tienda. La carpeta de skill puede instalarse sola en `~/.agents/skills/supplier-catalog-agent`; en ese caso sus scripts de runtime no se instalan automáticamente.

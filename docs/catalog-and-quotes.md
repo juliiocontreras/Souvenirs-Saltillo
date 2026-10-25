@@ -1,5 +1,23 @@
 # Categorías, personalización y cotizaciones
 
+## Recuperar importaciones
+
+El panel incluye **Importaciones pendientes**, con las fichas extraídas que aún
+no se han aplicado al catálogo. Se conservan en la base al cerrar o recargar el
+panel (hasta 100 importaciones recientes). **Continuar revisión** recupera la
+consulta original sin volver a visitar el proveedor; la fecha permanece visible
+para confirmar de nuevo las condiciones antes de publicar.
+
+La bandeja señala imagen, costo, moneda y entrega pendientes. Los valores no
+publicados por el proveedor no se inventan. Las modificaciones del formulario
+no se guardan automáticamente: usar **Guardar borrador** para conservarlas como
+producto privado. Cerrar la vista previa conserva la consulta original. Abrir
+otra ficha con una vista previa abierta solicita confirmar el cambio.
+
+Las rutas de listado y lectura de importaciones exigen sesión administrativa,
+no permiten caché y no exponen borradores en el catálogo público. Las importaciones
+ya aplicadas desaparecen de la bandeja y no se reabren como consultas pendientes.
+
 La taxonomía compartida entre servidor, panel, filtros y asistente está en
 `packages/core/categories.mjs`:
 

@@ -41,7 +41,8 @@ Fuentes oficiales revisadas el 19 de octubre de 2026:
    vacías, asistente de cotización, login/logout y protección de APIs privadas.
    Una respuesta 200 de la portada por sí sola no verifica la publicación.
 5. Añadir `suvenirssaltillo.shop` y `www.suvenirssaltillo.shop` al servicio en
-   Render. Copiar **los destinos exactos que muestre ese servicio** a GoDaddy.
+   Render. Copiar **los destinos exactos que muestre ese servicio** al proveedor DNS
+   autoritativo (Cloudflare en la instalación actual; GoDaddy sigue como registrador).
    El A de Netlify `75.2.60.5` no conecta un servicio de Render. Conservar NS,
    SOA, correo y verificaciones; revisar si existen AAAA incompatibles.
 6. Confirmar DNS y certificado HTTPS. Entonces establecer
@@ -49,6 +50,11 @@ Fuentes oficiales revisadas el 19 de octubre de 2026:
    las escrituras desde el dominio. Revisar también `www` y su redirección.
 
 ## Monitor de proveedores
+
+La alternativa preparada con Cloudflare Workers se describe en
+[cloudflare-monitor.md](cloudflare-monitor.md). Su activación requiere verificar
+una ejecución real y desactivar el programador anterior. No confundir un Worker
+preparado en el repositorio con un cron desplegado.
 
 El servicio gratuito duerme: no instalar un bucle dentro del servidor ni usar
 peticiones para mantenerlo despierto. No crear un cron de Render de pago.

@@ -1,0 +1,14 @@
+{
+  "name": "souvenirs-saltillo-monitor",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-24",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "MONITOR_URL": "https://suvenirssaltillo.shop/api/supplier/monitor"
+  },
+  "triggers": {
+    // Enable "17 */4 * * *" only after verification and retiring the old scheduler.
+    "crons": []
+  }
+}

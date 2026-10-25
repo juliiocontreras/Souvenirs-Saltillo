@@ -5,6 +5,7 @@ import ProductClassificationEditor from "./ProductClassificationEditor";
 import QuoteInbox from "./QuoteInbox";
 import ContactSettings from "./ContactSettings";
 import { classificationLabel } from "../../packages/core/categories.mjs";
+import { importSummary } from "../../packages/core/imports.mjs";
 
 const date = (value) =>
   value
@@ -76,7 +77,9 @@ export default function AdminPanel({
   initialSearchState,
   monitorConfigured,
   initialContactSettings,
+  initialImports = [],
 }) {
+  const [pendingImports, setPendingImports] = useState(initialImports);
   const [reviewedCandidates, setReviewedCandidates] = useState({});
   const [searchState, setSearchState] = useState(initialSearchState);
   const [products, setProducts] = useState(initialProducts),
@@ -110,13 +113,15 @@ export default function AdminPanel({
     setMessage(text);
   }
   async function refresh() {
-    const [catalog, state] = await Promise.all([
+    const [catalog, state, inbox] = await Promise.all([
       api("/api/products?scope=admin", null, "GET"),
       api("/api/supplier/runs", null, "GET"),
+      api("/api/supplier/import", null, "GET"),
     ]);
     setProducts(catalog.products);
     setRuns(state.runs);
     setSearchState(state.searchState);
+    setPendingImports(inbox.imports);
     const openIds = Object.keys(intelligence);
     if (openIds.length) {
       const fresh = await Promise.all(
@@ -141,6 +146,10 @@ export default function AdminPanel({
     }
   }
   function loadDraft(value) {
+    if (value.status === "preview") {
+      setPendingImports(old => [importSummary(value), ...old.filter(item => item.id !== value.id)]
+        .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+    }
     const index = value.selection || 0;
     setDraft(value);
     setSelection(index);
@@ -439,6 +448,40 @@ export default function AdminPanel({
               necesitan una API o un adaptador del proveedor.
             </p>
           </section>
+          <section className="card" aria-labelledby="pending-imports-title">
+            <h2 id="pending-imports-title">Importaciones pendientes</h2>
+            <p className="muted small">
+              Recupera las fichas consultadas aunque cierres el panel. Los cambios
+              de la vista previa se conservan al pulsar «Guardar borrador».
+            </p>
+            {pendingImports.length === 0 ? (
+              <p className="muted">No hay fichas pendientes de revisión.</p>
+            ) : (
+              <ul className="pending-imports">
+                {pendingImports.map(item => (
+                  <li key={item.id}>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p className="muted small">Consultado: {date(item.createdAt)} · {item.optionCount} ficha(s)</p>
+                      <p className="small">
+                        {item.missing.length ? `Por completar: ${item.missing.join(", ")}.` : "Datos extraídos; confirma variante y condiciones."}
+                      </p>
+                    </div>
+                    <button type="button" className="btn ghost" disabled={Boolean(busy) || draft?.id === item.id}
+                      onClick={() => {
+                        if (draft && !window.confirm("¿Abrir otra ficha? Los cambios sin guardar de esta vista previa se perderán.")) return;
+                        perform("resume-" + item.id, async () => {
+                          const result = await api(`/api/supplier/import/${encodeURIComponent(item.id)}`, null, "GET");
+                          loadDraft(result.draft);
+                        });
+                      }}>
+                      {draft?.id === item.id ? "Ficha abierta" : busy === "resume-" + item.id ? "Abriendo…" : "Continuar revisión"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
           {draft && edit && (
             <section
               className="card preview"
@@ -458,9 +501,13 @@ export default function AdminPanel({
                     setEdit(null);
                   }}
                 >
-                  Descartar vista previa
+                  Cerrar vista previa
                 </button>
               </div>
+              <p className="notice">
+                Datos consultados el {date(draft.createdAt)}. Confirma el precio,
+                la variante y la entrega antes de publicar; abrir esta ficha no vuelve a consultar al proveedor.
+              </p>
               <form onSubmit={submitPreview}>
                 <label className="field">
                   Ficha o variante

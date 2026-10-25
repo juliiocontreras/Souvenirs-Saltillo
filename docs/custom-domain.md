@@ -1,57 +1,31 @@
 # Dominio del proyecto
 
-- Dominio proporcionado por el propietario: `suvenirssaltillo.shop`.
-- Registrador indicado: GoDaddy.
-- El propietario confirmó el nombre exacto y que GoDaddy lo muestra activo.
-- Origen previsto: `https://suvenirssaltillo.shop`.
-- Panel previsto: `https://suvenirssaltillo.shop/login`.
-- Dirección actual verificada del hosting: `https://r1q3g0ao.basicdeploy.com`.
+Configuración comprobada el 24 de octubre de 2026:
 
-El 17 de octubre de 2026 el dominio comenzó a resolver públicamente en Google y
-Cloudflare con `ns63.domaincontrol.com` y `ns64.domaincontrol.com`. El registro
-raíz seguía apuntando al estacionamiento de GoDaddy y `www` era alias del raíz.
-El propietario confirmó el nombre exacto y el estado activo.
+- Dominio: `suvenirssaltillo.shop`.
+- Registrador: GoDaddy. DNS autoritativo: Cloudflare (`cora.ns.cloudflare.com` y
+  `evan.ns.cloudflare.com`). Los cambios DNS se hacen en Cloudflare.
+- Hosting: Render Free, servicio `suvenirssaltillo`.
+- Tienda: https://suvenirssaltillo.shop.
+- Panel: https://suvenirssaltillo.shop/login.
+- URL del servicio: https://suvenirssaltillo.onrender.com.
 
-BasicDeploy Free no permite dominios propios y su documentación limita la
-conexión directa de sus planes de pago a subdominios. El propietario eligió
-mantener el hosting gratuito. La alternativa preparada es [Netlify Free con
-Neon Free](netlify-free.md), que admite dominio raíz y `www`.
+| Tipo | Nombre | Destino | Proxy |
+| --- | --- | --- | --- |
+| A | @ | 216.24.57.1 | Solo DNS |
+| CNAME | www | suvenirssaltillo.onrender.com | Solo DNS |
 
-## Secuencia de conexión
+El propietario añadió el dominio en Render y confirmó `Domain Verified`.
+Se comprobaron HTTPS en ambos nombres, redirección de `www` al raíz, 14 recursos,
+catálogo público, protección de APIs y acceso/cierre de sesión en el dominio raíz.
+Los registros MX, SPF, DKIM y DMARC de correo se conservaron.
 
-Aplicar los registros que proporcione el proyecto definitivo de Netlify según
-la guía anterior; esta secuencia explica las condiciones generales del cambio.
+`APP_ORIGIN=https://suvenirssaltillo.shop` está aplicado en Render. Las cookies son
+específicas del dominio: usar el panel del dominio raíz. Las escrituras desde otros
+orígenes se rechazan. No desactivar esta comprobación para permitir el subdominio
+provisional del hosting.
 
-1. En GoDaddy, abrir **Mis productos → Dominios → suvenirssaltillo.shop → DNS**.
-   Confirmar que el dominio esté activo y revisar qué servidores de nombres
-   administran la zona. Si la zona está delegada a otro proveedor, editar allí.
-2. Obtener del hosting la configuración para vincular este dominio al contenedor
-   existente, incluyendo los registros de verificación y destino, y la emisión
-   de su certificado HTTPS. Usar los valores que proporcione ese hosting.
-3. Guardar en la zona DNS únicamente los registros necesarios. Para el nombre
-   raíz se usa `@`; para `www` se configura un alias si también se va a vincular
-   ese hostname. Conservar los registros de correo y de verificación existentes.
-4. Verificar que el dominio resuelva y abra esta misma tienda por HTTPS con un
-   certificado válido. Confirmar también el hostname `www` si se habilitó.
-5. Entonces actualizar el archivo privado del servidor, conservando sus demás
-   variables, y reiniciar únicamente esta aplicación:
-
-   ```dotenv
-   APP_ORIGIN=https://suvenirssaltillo.shop
-   ```
-
-6. Desde el dominio definitivo, comprobar inicio y cierre de sesión, guardado
-   del contacto de WhatsApp, envío de cotización y consulta del panel. Las
-   cookies son específicas de cada dominio: iniciar sesión de nuevo en el nuevo
-   dominio. Las escrituras desde orígenes diferentes deben seguir rechazándose.
-
-`APP_ORIGIN` controla la protección de origen de las escrituras del panel y de
-las cotizaciones. Mantener su valor actual hasta verificar DNS y HTTPS evita
-interrumpir el acceso existente durante la conexión. No se ha cambiado esta
-variable en producción ni se han registrado cambios DNS desde esta sesión.
-
-## Estado pendiente
-
-Faltan obtener la vinculación del dominio en el hosting, aplicar sus registros
-DNS y verificar HTTPS antes de actualizar el origen. No se han aplicado cambios
-a la zona DNS ni a la configuración privada del servidor.
+Para migraciones futuras, obtener los destinos exactos del nuevo servicio y
+verificar su HTTPS antes de cambiar `APP_ORIGIN`. No restaurar el A de Netlify
+`75.2.60.5`, ni cambiar los registros de correo al actualizar la web. Conservar
+solo los registros compatibles con el proveedor de destino.
