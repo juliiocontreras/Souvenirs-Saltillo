@@ -11,6 +11,7 @@ import {
 import { dirname, resolve } from "node:path";
 import { toPublicProduct } from "./catalog.mjs";
 import { validateContactSettings } from "./contact.mjs";
+import { importSummary } from "./imports.mjs";
 
 const empty = () => ({
   products: {},
@@ -136,7 +137,14 @@ export class CatalogRepository {
     });
   }
   async getDraft(id) {
-    return (await this.read()).drafts[id] || null;
+    const drafts = (await this.read()).drafts;
+    return typeof id === "string" && Object.hasOwn(drafts, id) ? drafts[id] : null;
+  }
+  async listPendingImports() {
+    return Object.values((await this.read()).drafts)
+      .filter(draft => draft.status === "preview")
+      .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))
+      .map(importSummary);
   }
   async getSession(hash) {
     return (await this.read()).sessions[hash] || null;

@@ -8,6 +8,16 @@ import { apiError } from "../../../../lib/api-response.mjs";
 import { catalogRepository } from "../../../../lib/catalog-store.mjs";
 import { createImport } from "../../../../lib/catalog-service.mjs";
 export const maxDuration = 120;
+export async function GET(request) {
+  try {
+    await requireAdmin(request);
+    return NextResponse.json({ imports: await catalogRepository.listPendingImports() }, {
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch (error) {
+    return apiError(error);
+  }
+}
 export async function POST(request) {
   let locked = false;
   const owner = crypto.randomUUID();

@@ -681,3 +681,12 @@ details pre {
   max-width: 260px;
   margin-top: 20px;
 }
+
+.pending-imports { list-style: none; padding: 0; margin: 16px 0 0; }
+.pending-imports li { display: flex; gap: 16px; justify-content: space-between; align-items: center; padding: 18px 0; border-top: 1px solid #dedbd3; }
+.pending-imports li > div { min-width: 0; overflow-wrap: anywhere; }
+.pending-imports p { margin: 6px 0 0; }
+.pending-imports button { flex-shrink: 0; }
+@media (max-width: 640px) {
+  .pending-imports li { align-items: stretch; flex-direction: column; }
+}

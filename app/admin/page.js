@@ -11,11 +11,12 @@ export default async function Admin() {
   const jar = await cookies(),
     session = await tokenSession(jar.get(SESSION_COOKIE)?.value);
   if (!session) redirect("/login");
-  const [products, runs, searchState, contact] = await Promise.all([
+  const [products, runs, searchState, contact, imports] = await Promise.all([
     catalogRepository.listProducts(),
     catalogRepository.listRuns(),
     searchSummary(catalogRepository),
     contactSettings(),
+    catalogRepository.listPendingImports(),
   ]);
   return (
     <AdminPanel
@@ -25,6 +26,7 @@ export default async function Admin() {
       monitorConfigured={process.env.MONITOR_SCHEDULER_CONFIGURED === "true"}
       initialSearchState={searchState}
       initialContactSettings={contact}
+      initialImports={imports}
     />
   );
 }

@@ -85,7 +85,7 @@ def main():
                 page.get_by_role('button',name='Revisar para sustituir').click()
                 page.get_by_role('heading',name='Vista previa del producto').wait_for(timeout=90000)
                 assert page.get_by_label('Costo de proveedor',exact=True).input_value()=='90'
-                page.get_by_role('button',name='Descartar vista previa').click()
+                page.get_by_role('button',name='Cerrar vista previa').click()
                 # Approval is deliberately omitted: source selection cannot silently replace the supplier.
                 private=context.request.get(origin+'/api/products?scope=admin').json()['products'][0]
                 assert private['supplierCost']==100
@@ -96,7 +96,7 @@ def main():
                 page.locator('.alternative').last.get_by_role('button',name='Revisar para sustituir').click()
                 page.get_by_role('heading',name='Vista previa del producto').wait_for(timeout=90000)
                 assert page.get_by_label('Costo de proveedor',exact=True).input_value()=='85'
-                page.get_by_role('button',name='Descartar vista previa').click()
+                page.get_by_role('button',name='Cerrar vista previa').click()
                 page.get_by_role('button',name='Revisar proveedores',exact=True).click()
                 page.get_by_text('Revisión terminada. Consulta los resultados y cambios pendientes.',exact=True).wait_for(timeout=180000)
                 assert context.request.get(origin+'/api/supplier/runs').json()['runs'][0]['status']=='completed'

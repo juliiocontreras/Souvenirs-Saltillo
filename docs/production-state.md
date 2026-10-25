@@ -1,4 +1,31 @@
-# Estado del primer despliegue — 13 de octubre de 2026
+# Estado de producción — 25 de octubre de 2026
+
+- Tienda: https://suvenirssaltillo.shop; panel: https://suvenirssaltillo.shop/login.
+- Render Free: servicio `suvenirssaltillo`, en la cuenta `contacto@suvenirssaltillo.shop`.
+- Base persistente: Neon, organización `sourvenirs`. No se volvió a migrar al publicar en Render.
+- DNS autoritativo: Cloudflare. GoDaddy conserva el registro del dominio.
+- HTTPS y redirección de `www` al dominio raíz comprobados. `APP_ORIGIN` usa el raíz.
+- Correo: `contacto@suvenirssaltillo.shop` reenvía a `juliiocontreras@gmail.com`.
+- Tavily configurado con límite local de 900 búsquedas por mes UTC.
+- El 25 de octubre se guardó una vista previa real del termo de Temu compartido por
+  el propietario. Extrajo título y descripción; imagen, costo, moneda y entrega
+  quedaron pendientes. No se publicó el producto.
+- El monitor nuevo de Cloudflare está **preparado, no activado**. El propietario
+  confirmó Workers Free, pero las conexiones de proveedores dejaron de estar
+  disponibles antes del despliegue. Aún falta retirar el scheduler de BasicDeploy,
+  que estaba activo en la última inspección, y verificar el nuevo recorrido.
+- GitHub Actions sigue como alternativa sin secrets disponibles para activarlo.
+- WhatsApp público del negocio: pendiente del número confirmado por el propietario.
+
+Ver [cloudflare-monitor.md](cloudflare-monitor.md) para la activación sin duplicar
+programadores y [render-free.md](render-free.md) para los límites del hosting.
+La bandeja de importaciones conserva consultas pendientes, no cambios de formulario
+sin guardar. El asistente de cotización es guiado y no garantiza atención inmediata
+cuando Render Free está dormido.
+
+## Registro histórico (no describe el hosting actual)
+
+### Primer despliegue — 13 de octubre de 2026
 
 - Tienda: https://r1q3g0ao.basicdeploy.com
 - Panel: https://r1q3g0ao.basicdeploy.com/login
