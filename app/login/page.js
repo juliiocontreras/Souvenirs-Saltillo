@@ -4,8 +4,13 @@ export default function Login() {
   return (
     <main className="shell">
       <nav className="nav">
-        <a className="brand" href="/">
-          Souvenirs Saltillo
+        <a className="brand" href="/" aria-label="Souvenirs Saltillo, inicio">
+          <img
+            src="/images/souvenirs-saltillo-logo.webp"
+            alt="Souvenirs Saltillo"
+            width="665"
+            height="221"
+          />
         </a>
         <a className="text-link" href="/">
           Volver a la tienda

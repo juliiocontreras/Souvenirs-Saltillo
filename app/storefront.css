@@ -509,6 +509,14 @@
   outline: 0;
   box-shadow: none;
 }
+.storefront .sf-search input::placeholder {
+  color: #56584e;
+  opacity: 1;
+}
+.storefront .sf-search input::-moz-placeholder {
+  color: #56584e;
+  opacity: 1;
+}
 .sf-search input::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
@@ -528,9 +536,11 @@
 }
 .sf-category-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
   gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .sf-catalog-context {
   display: flex;
@@ -562,9 +572,9 @@
 }
 .sf-category-tabs button {
   background: transparent;
-  color: var(--sf-muted);
+  color: #4c4e44;
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2px solid #8a8d80;
   padding: 13px 18px;
   font-size: 12px;
   min-height: 48px;
@@ -575,6 +585,7 @@
 }
 .sf-category-tabs button:hover {
   color: var(--sf-olive);
+  border-bottom-color: var(--sf-olive);
 }
 .sf-category-tabs button.is-active {
   color: var(--sf-olive);
@@ -765,7 +776,12 @@
 }
 .sf-footer-bottom p {
   font-size: 10px;
-  color: #e9eadd;
+  color: #ffffff;
+}
+.sf-footer-main > div:last-child > a {
+  display: block;
+  width: fit-content;
+  min-height: 30px;
 }
 .sf-product-grid {
   display: grid;
@@ -1220,8 +1236,8 @@
     gap: 0;
   }
   .storefront .sf-header-actions .sf-icon-button {
-    width: 37px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     padding: 8px;
   }
   .sf-header-actions svg {
@@ -1614,11 +1630,6 @@
   font-size: 14px;
   line-height: 1.5;
   text-align: left;
-}
-.sf-quote-launcher small {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.02em;
 }
 .sf-quote-launcher-icon {
   display: none;

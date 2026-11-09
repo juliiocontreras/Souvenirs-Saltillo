@@ -175,8 +175,7 @@ export default function Catalog({
           )}
           <h3>
             {pendingCategory
-              ? subcategory ||
-                (category === "Todos" ? "Próximamente" : category)
+              ? "Próximamente"
               : unavailable
                 ? "El catálogo estará de vuelta"
                 : products.length

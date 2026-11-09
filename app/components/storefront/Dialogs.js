@@ -145,32 +145,31 @@ export function FaqDialog({ onClose }) {
       <details open>
         <summary>¿Qué detalles puedo personalizar?</summary>
         <p>
-          Busca la categoría Personalizados. En la ficha de cada artículo verás
-          si admite personalización. Las opciones dependen del producto.
+          Explora la categoría Personalizados para ver las opciones para
+          hacerlo único. Cuando pidas tu cotización, cuéntanos el artículo, la
+          cantidad y el diseño que tienes en mente: ahí te confirmamos si
+          admite personalización y cuáles son las opciones.
         </p>
       </details>
       <details>
         <summary>¿Cuánto tarda la entrega?</summary>
         <p>
-          Cada ficha indica un tiempo estimado cuando está disponible. La fecha
-          final depende de la cantidad, la personalización y el destino, y se
-          confirma para cada pedido.
+          Depende de la cantidad, la personalización y el destino. La fecha
+          final se confirma en tu cotización para cada pedido.
         </p>
       </details>
       <details>
         <summary>¿Puedo encontrar regalos para mi empresa o evento?</summary>
         <p>
-          Sí. Explora Empresas y eventos para ver los artículos publicados en
-          esa colección. La disponibilidad se confirma según la cantidad que
-          necesites.
+          Sí. Cuéntanos en tu cotización cuántas piezas necesitas y para qué
+          ocasión: te preparamos opciones coordinadas para tu equipo o evento.
         </p>
       </details>
       <details>
         <summary>¿Cómo consulto el precio de un artículo?</summary>
         <p>
-          El precio publicado aparece en cada ficha junto con su moneda. Si dice
-          “Precio por confirmar”, todavía no hay un precio disponible para ese
-          artículo.
+          El precio de cada detalle se confirma en tu cotización, según el
+          artículo, la cantidad y la personalización que elijas.
         </p>
       </details>
     </Dialog>

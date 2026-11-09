@@ -2,7 +2,8 @@
 import { useState } from "react";
 export default function LoginForm() {
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [showPassword, setShowPassword] = useState(false);
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
@@ -25,16 +26,30 @@ export default function LoginForm() {
   }
   return (
     <form method="post" onSubmit={submit} aria-busy={busy}>
-      <label className="field">
-        Contraseña
-        <input
-          name="password"
-          type="password"
-          required
-          maxLength={1024}
-          autoComplete="current-password"
-        />
-      </label>
+      <div className="field">
+        <label htmlFor="login-password">Contraseña</label>
+        <span className="password-field">
+          <input
+            id="login-password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            required
+            maxLength={1024}
+            autoComplete="current-password"
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            aria-label={
+              showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
+            aria-pressed={showPassword}
+            onClick={() => setShowPassword((value) => !value)}
+          >
+            {showPassword ? "Ocultar" : "Mostrar"}
+          </button>
+        </span>
+      </div>
       {error && (
         <p className="notice error" role="alert">
           {error}

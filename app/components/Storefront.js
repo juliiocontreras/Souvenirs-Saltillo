@@ -165,7 +165,11 @@ export default function Storefront({
         />
         <About />
       </main>
-      <Footer onCategory={navigateCategory} onFaq={() => setFaq(true)} />
+      <Footer
+        onCategory={navigateCategory}
+        onFaq={() => setFaq(true)}
+        whatsappNumber={whatsappNumber}
+      />
       <button
         type="button"
         className="sf-quote-launcher"
@@ -174,9 +178,7 @@ export default function Storefront({
         aria-label="Cotiza tu idea"
       >
         <Icon name="chat" size={24} className="sf-quote-launcher-icon" />
-        <span className="sf-quote-launcher-text">
-          Cotiza tu idea <small>Atención automática</small>
-        </span>
+        <span className="sf-quote-launcher-text">Cotiza tu idea</span>
       </button>
       <QuoteAssistant
         open={quoteOpen}

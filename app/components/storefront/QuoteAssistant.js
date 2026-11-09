@@ -203,7 +203,7 @@ export default function QuoteAssistant({
       <div className="sf-quote-header">
         <div>
           <h2 id="quote-heading">Tu próximo detalle empieza aquí</h2>
-          <p>Asistente de cotización · Atención automática</p>
+          <p>Asistente de cotización</p>
         </div>
         <button
           type="button"

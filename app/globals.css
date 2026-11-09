@@ -28,6 +28,11 @@ a {
   font-weight: 800;
   letter-spacing: -0.04em;
 }
+.brand img {
+  display: block;
+  width: 190px;
+  height: auto;
+}
 .btn {
   border: 0;
   border-radius: 999px;
@@ -70,6 +75,33 @@ a {
 .login {
   max-width: 430px;
   margin: 12vh auto;
+}
+.login .btn {
+  background: #464d35;
+}
+.login .btn:hover:not(:disabled) {
+  background: #353d29;
+}
+.password-field {
+  position: relative;
+  display: block;
+}
+.password-field input {
+  padding-right: 96px;
+}
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: #464d35;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 .field {
   display: grid;

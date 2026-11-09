@@ -1,6 +1,7 @@
 import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
 import { PRODUCT_CATEGORY_NAMES } from "../../../packages/core/categories.mjs";
+import { whatsappContactUrl } from "../../../packages/core/contact.mjs";
 export function Hero({ onCategory }) {
   return (
     <>
@@ -195,7 +196,8 @@ export function About() {
     </section>
   );
 }
-export function Footer({ onCategory, onFaq }) {
+export function Footer({ onCategory, onFaq, whatsappNumber = "" }) {
+  const whatsappUrl = whatsappContactUrl(whatsappNumber);
   return (
     <footer className="sf-footer">
       <div className="sf-container">
@@ -206,8 +208,7 @@ export function Footer({ onCategory, onFaq }) {
           </div>
           <nav aria-label="Explora la tienda">
             <h3>Explora</h3>
-            {["Todos", ...PRODUCT_CATEGORY_NAMES.slice(0, 6)].map(
-              (category) => (
+            {["Todos", ...PRODUCT_CATEGORY_NAMES].map((category) => (
                 <a
                   key={category}
                   href={categoryHref(category)}
@@ -228,6 +229,18 @@ export function Footer({ onCategory, onFaq }) {
           <div>
             <h3>Nuestra tienda</h3>
             <p>Saltillo, Coahuila · México</p>
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp
+              </a>
+            )}
+            <a href="mailto:contacto@suvenirssaltillo.shop">
+              contacto@suvenirssaltillo.shop
+            </a>
             <a href="/login">Acceso a tienda</a>
           </div>
         </div>
