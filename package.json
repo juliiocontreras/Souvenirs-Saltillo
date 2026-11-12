@@ -17,6 +17,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "robots-parser": "^3.0.1",
+    "stripe": "^18.5.0",
     "undici": "^8.11.2"
   },
   "overrides": {

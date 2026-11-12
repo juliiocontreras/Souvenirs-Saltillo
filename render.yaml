@@ -36,3 +36,9 @@ services:
         sync: false
       - key: SEARCH_MONTHLY_LIMIT
         value: "900"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SHIPPING_FLAT_RATE_MXN_CENTS
+        value: "15000"

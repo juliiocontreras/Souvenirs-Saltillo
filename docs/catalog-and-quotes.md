@@ -1,5 +1,44 @@
 # Categorías, personalización y cotizaciones
 
+## Productos manuales
+
+El panel incluye **Nuevo producto** para subir productos propios sin enlace
+de proveedor. El formulario pide título, descripción, categoría (una de las
+18 familias del catálogo), subcategoría, precio de venta en MXN, entrega
+(mínima y máxima en días), si se puede personalizar y disponibilidad. El
+precio siempre es en pesos mexicanos e incluye IVA.
+
+**Obligatorios:** título, categoría y precio mayor que cero. Para publicar
+se necesita además al menos una foto; sin foto solo se puede guardar como
+borrador. Los botones son **Publicar** y **Guardar como borrador**.
+
+**Fotos:** se pueden pegar URLs https (se verifica que apunten a un servidor
+público, como en la importación) o subir fotos desde el dispositivo (PNG,
+JPG o WebP, hasta 2 MB cada una, hasta 6 por carga). Las fotos subidas se
+guardan en la base de datos de la tienda (tabla
+`souvenirs_product_images`, con el mismo patrón durable que los logos de
+cotización) y se sirven en `/api/product-images/[id]`; sobreviven a los
+redespliegues. Las fotos subidas antes de crear el producto quedan guardadas
+aunque no se llegue a crear: no se borran solas.
+
+**Edición y publicación:** un producto manual se edita con **Editar
+producto** en su ficha del catálogo (título, descripción, precio, fotos,
+entrega, categoría, disponibilidad) y se publica o retira desde ahí o con
+**Publicar** / **Retirar del catálogo**. Los productos manuales llevan la
+etiqueta **Manual** en el catálogo del panel. No tienen proveedor: el monitor
+de proveedores los ignora, no admiten revisión de ficha ni cambio de
+proveedor, y la edición de precio y fotos se hace en su propio formulario
+(en los importados, el precio se revisa desde la ficha del proveedor).
+
+**API:** `POST /api/products` sin `id` crea el producto (solo admin con
+escritura, 201); `PATCH /api/products/[id]` edita un producto manual
+(también publica o retira con `{ status }`); `POST /api/product-images`
+sube fotos sin producto y `POST /api/products/[id]/images` las sube para un
+producto; `GET /api/product-images/[id]` sirve la foto en público.
+Validación en `packages/core/manual-products.mjs`, servicio en
+`lib/catalog-service.mjs` (`createManualProduct`, `updateManualProduct`) y
+fotos en `packages/core/product-images.mjs` + `lib/product-images.mjs`.
+
 ## Recuperar importaciones
 
 El panel incluye **Importaciones pendientes**, con las fichas extraídas que aún

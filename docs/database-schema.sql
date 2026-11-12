@@ -28,5 +28,38 @@ create table if not exists souvenirs_quote_requests (
   logo_data bytea
 );
 
+-- Paid orders from Stripe Checkout. One row per paid checkout session; the
+-- order snapshot (items, totals, customer, delivery method) lives in data
+-- as jsonb. The webhook upserts by id and looks orders up by
+-- data->>'stripeSessionId', so a retried webhook never duplicates an order.
+-- The table is created on first use by PostgresOrderRepository.initialize()
+-- and copied by ops/database-copy.mjs.
+create table if not exists souvenirs_orders (
+  id uuid primary key,
+  data jsonb not null
+);
+
+-- Processed Stripe webhook events, for idempotency. The id is the Stripe
+-- event id (evt_...); data holds the event type and processing timestamp.
+-- A repeated delivery of the same event is ignored.
+create table if not exists souvenirs_stripe_events (
+  id text primary key,
+  data jsonb not null
+);
+
+-- Fotos de producto subidas desde el panel (PNG, JPG o WebP, hasta 2 MB).
+-- Una fila por foto; product_id es null cuando la foto se subió antes de
+-- crear el producto y quedó sin usar. La tabla se crea al primer uso con
+-- PostgresProductImageRepository.initialize() y se copia con
+-- ops/database-copy.mjs. Las fotos se sirven en /api/product-images/[id].
+create table if not exists souvenirs_product_images (
+  id uuid primary key,
+  product_id uuid,
+  data bytea not null,
+  content_type text not null,
+  filename text not null,
+  created_at timestamptz not null
+);
+
 -- This does not migrate any historical products/supplier_checks tables.
 -- If a previous deployment used a different schema, review an explicit migration.

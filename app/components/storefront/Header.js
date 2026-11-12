@@ -4,7 +4,13 @@ import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
 import { PRODUCT_CATEGORIES } from "../../../packages/core/categories.mjs";
 
-export default function Header({ onCategory, onSearch, onQuote }) {
+export default function Header({
+  onCategory,
+  onSearch,
+  onQuote,
+  cartCount = 0,
+  onCart,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const header = useRef(null),
     menuButton = useRef(null),
@@ -177,6 +183,26 @@ export default function Header({ onCategory, onSearch, onQuote }) {
           </a>
         </nav>
         <div className="sf-header-actions">
+          <button
+            type="button"
+            className="sf-icon-button sf-cart-button"
+            aria-label={
+              cartCount > 0
+                ? `Carrito, ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`
+                : "Carrito, vacío"
+            }
+            onClick={() => {
+              closeMenus();
+              onCart?.();
+            }}
+          >
+            <Icon name="cart" />
+            {cartCount > 0 && (
+              <span className="sf-cart-count" aria-hidden="true">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </button>
           <button
             type="button"
             className="sf-icon-button"

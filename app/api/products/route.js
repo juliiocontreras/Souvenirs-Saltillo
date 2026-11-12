@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { catalogRepository } from "../../../lib/catalog-store.mjs";
 import { requireAdmin, jsonBody, ApiError } from "../../../lib/admin-auth.mjs";
+import { createManualProduct } from "../../../lib/catalog-service.mjs";
 import { apiError } from "../../../lib/api-response.mjs";
 export const dynamic = "force-dynamic";
 export async function GET(request) {
@@ -21,8 +22,13 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     await requireAdmin(request, { write: true });
-    const body = await jsonBody(request),
-      product = await catalogRepository.getProduct(body.id);
+    const body = await jsonBody(request);
+    if (!body.id) {
+      // Sin id: creación manual desde el panel (sin enlace de proveedor).
+      const product = await createManualProduct(catalogRepository, body);
+      return NextResponse.json({ product }, { status: 201 });
+    }
+    const product = await catalogRepository.getProduct(body.id);
     if (!product)
       throw new ApiError(
         "Para crear un producto utiliza la vista previa de importación.",

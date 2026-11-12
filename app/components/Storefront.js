@@ -6,6 +6,15 @@ import {
   categoryHref,
   canSortByPrice,
 } from "../../packages/core/storefront.mjs";
+import {
+  CART_STORAGE_KEY,
+  parseCart,
+  serializeCart,
+  addToCart as addLine,
+  setCartQuantity,
+  removeFromCart,
+  cartItemCount,
+} from "../../packages/core/cart.mjs";
 import Header from "./storefront/Header";
 import {
   Hero,
@@ -15,6 +24,7 @@ import {
   Footer,
 } from "./storefront/Sections";
 import Catalog from "./storefront/Catalog";
+import Cart from "./storefront/Cart";
 import { ProductDialog, FaqDialog } from "./storefront/Dialogs";
 import QuoteAssistant from "./storefront/QuoteAssistant";
 import Icon from "./storefront/Icons";
@@ -35,6 +45,42 @@ export default function Storefront({
     [faq, setFaq] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quoteContext, setQuoteContext] = useState(null);
+  // El carrito vive en localStorage y solo guarda id + cantidad; los precios
+  // se resuelven en el servidor al pagar.
+  const [cart, setCart] = useState([]),
+    [cartLoaded, setCartLoaded] = useState(false),
+    [cartOpen, setCartOpen] = useState(false);
+  useEffect(() => {
+    try {
+      setCart(parseCart(window.localStorage.getItem(CART_STORAGE_KEY)));
+    } catch {
+      setCart([]);
+    }
+    setCartLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!cartLoaded) return;
+    try {
+      window.localStorage.setItem(CART_STORAGE_KEY, serializeCart(cart));
+    } catch {
+      // Sin almacenamiento, el carrito solo vive en esta visita.
+    }
+  }, [cart, cartLoaded]);
+  function addToCart(product, qty = 1) {
+    if (
+      typeof product?.publicPrice !== "number" ||
+      !Number.isFinite(product.publicPrice) ||
+      product.publicPrice <= 0 ||
+      product.currency !== "MXN"
+    )
+      return;
+    try {
+      setCart((current) => addLine(current, product.id, qty));
+      setCartOpen(true);
+    } catch {
+      // Cantidad fuera de rango o carrito lleno: no se agrega nada.
+    }
+  }
   function openQuote(context = { category, subcategory }) {
     setQuoteContext(context);
     setQuoteOpen(true);
@@ -128,6 +174,8 @@ export default function Storefront({
       <Header
         onQuote={() => openQuote()}
         onCategory={navigateCategory}
+        cartCount={cartItemCount(cart)}
+        onCart={() => setCartOpen(true)}
         onSearch={() => {
           document
             .getElementById("catalogo")
@@ -157,6 +205,7 @@ export default function Storefront({
           onSort={setSort}
           onReset={reset}
           onProduct={setProduct}
+          onAddToCart={addToCart}
           searchRef={searchRef}
         />
         <Personalization
@@ -192,6 +241,10 @@ export default function Storefront({
           key={product.id}
           product={product}
           onClose={() => setProduct(null)}
+          onAddToCart={(qty) => {
+            setProduct(null);
+            addToCart(product, qty);
+          }}
           onQuote={() => {
             setProduct(null);
             openQuote({
@@ -203,6 +256,20 @@ export default function Storefront({
         />
       )}
       {faq && <FaqDialog onClose={() => setFaq(false)} />}
+      <Cart
+        open={cartOpen}
+        cart={cart}
+        products={products}
+        onClose={() => setCartOpen(false)}
+        onSetQuantity={(id, qty) => {
+          try {
+            setCart((current) => setCartQuantity(current, id, qty));
+          } catch {
+            // Cantidad fuera de rango: no se cambia nada.
+          }
+        }}
+        onRemove={(id) => setCart((current) => removeFromCart(current, id))}
+      />
     </div>
   );
 }

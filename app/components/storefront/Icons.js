@@ -22,6 +22,18 @@ export default function Icon({ name, size = 24, ...props }) {
         <path d="M7 9h10M7 13h6" />
       </>
     ),
+    cart: (
+      <>
+        <path d="M4 8h16l-1.5 11a2 2 0 0 1-2 1.8h-9a2 2 0 0 1-2-1.8L4 8Z" />
+        <path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10" />
+      </>
+    ),
+    trash: (
+      <>
+        <path d="M4 7h16M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7M6.5 7l1 13h9l1-13" />
+        <path d="M10 11v5M14 11v5" />
+      </>
+    ),
     gift: (
       <>
         <path d="M4 10h16v4H4zM6 14v7h12v-7M12 10v11" />

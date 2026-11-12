@@ -28,6 +28,7 @@ export default function Catalog({
   onSort,
   onReset,
   onProduct,
+  onAddToCart,
   searchRef,
 }) {
   const pendingCategory =
@@ -236,7 +237,13 @@ export default function Catalog({
       )}
       {filtered.length > 0 && (
         <div className="sf-product-grid">
-          {filtered.map((product) => (
+          {filtered.map((product) => {
+            const purchasable =
+              typeof product.publicPrice === "number" &&
+              Number.isFinite(product.publicPrice) &&
+              product.publicPrice > 0 &&
+              product.currency === "MXN";
+            return (
             <article className="sf-product" key={product.id}>
               <button
                 className="sf-product-cover"
@@ -269,16 +276,27 @@ export default function Catalog({
                 </h3>
                 <p className="sf-product-price">{publicPriceLabel(product)}</p>
                 <p className="sf-product-delivery">{deliveryLabel(product)}</p>
-                <button
-                  type="button"
-                  className="sf-inline-link"
-                  onClick={() => onProduct(product)}
-                >
-                  Ver detalles <Icon name="arrow" size={16} />
-                </button>
+                {purchasable ? (
+                  <button
+                    type="button"
+                    className="sf-button sf-add-button"
+                    onClick={() => onAddToCart?.(product)}
+                  >
+                    Agregar al carrito
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="sf-inline-link"
+                    onClick={() => onProduct(product)}
+                  >
+                    Ver detalles <Icon name="arrow" size={16} />
+                  </button>
+                )}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>

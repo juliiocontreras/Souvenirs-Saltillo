@@ -59,9 +59,15 @@ function Dialog({ titleId, onClose, className = "", children }) {
     </dialog>
   );
 }
-export function ProductDialog({ product, onClose, onQuote }) {
+export function ProductDialog({ product, onClose, onQuote, onAddToCart }) {
   const [imageIndex, setImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const images = product.images || [];
+  const purchasable =
+    typeof product.publicPrice === "number" &&
+    Number.isFinite(product.publicPrice) &&
+    product.publicPrice > 0 &&
+    product.currency === "MXN";
   return (
     <Dialog
       titleId="product-dialog-title"
@@ -123,7 +129,37 @@ export function ProductDialog({ product, onClose, onQuote }) {
             </div>
           </div>
           <div className="sf-detail-quote">
-            <button type="button" className="sf-button" onClick={onQuote}>
+            {purchasable && (
+              <div className="sf-detail-buy">
+                <div className="sf-cart-qty" aria-label="Cantidad">
+                  <button
+                    type="button"
+                    aria-label="Quitar una pieza"
+                    disabled={quantity <= 1}
+                    onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  >
+                    −
+                  </button>
+                  <span aria-label={`Cantidad: ${quantity}`}>{quantity}</span>
+                  <button
+                    type="button"
+                    aria-label="Agregar una pieza"
+                    disabled={quantity >= 99}
+                    onClick={() => setQuantity((value) => Math.min(99, value + 1))}
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  className="sf-button"
+                  onClick={() => onAddToCart?.(quantity)}
+                >
+                  Agregar al carrito
+                </button>
+              </div>
+            )}
+            <button type="button" className="sf-button sf-button-outline" onClick={onQuote}>
               Cotizar este artículo <Icon name="arrow" size={18} />
             </button>
             <p>Cuéntanos la cantidad, el diseño y la fecha que necesitas.</p>

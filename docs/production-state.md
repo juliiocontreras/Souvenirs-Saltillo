@@ -15,7 +15,24 @@
   disponibles antes del despliegue. Aún falta retirar el scheduler de BasicDeploy,
   que estaba activo en la última inspección, y verificar el nuevo recorrido.
 - GitHub Actions sigue como alternativa sin secrets disponibles para activarlo.
-- WhatsApp público del negocio: pendiente del número confirmado por el propietario.
+- WhatsApp público del negocio: 2291437041, configurado el 9 de noviembre de
+  2026 como `WHATSAPP_NUMBER=522291437041` en Render; el enlace wa.me ya se
+  ve en el catálogo y en el pie.
+
+## Checkout con Stripe (código listo, sin configurar en producción)
+
+- Carrito + Stripe Checkout alojado + webhook + panel de pedidos, construido
+  el 9 de noviembre de 2026 (ver [checkout.md](checkout.md)). Cuenta tapmkt,
+  pago único, productos físicos, MXN. Sin push a producción todavía.
+- Supuestos pendientes de confirmación: precios del catálogo ya incluyen IVA
+  (`TAX_INCLUDED = true`); envío a todo México con tarifa plana de $150 MXN
+  (`SHIPPING_FLAT_RATE_MXN_CENTS=15000` por defecto), recoger en Saltillo
+  gratis.
+- Falta para el pase a producción: publicar el primer producto, poner
+  `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` en Render, crear el webhook
+  en Stripe para `https://suvenirssaltillo.shop/api/stripe/webhook` con el
+  evento `checkout.session.completed`, y hacer una compra de prueba con
+  reembolso.
 
 Ver [cloudflare-monitor.md](cloudflare-monitor.md) para la activación sin duplicar
 programadores y [render-free.md](render-free.md) para los límites del hosting.

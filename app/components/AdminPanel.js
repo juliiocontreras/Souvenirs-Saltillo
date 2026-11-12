@@ -2,7 +2,9 @@
 import { useEffect, useState, useRef } from "react";
 import ClassificationFields from "./ClassificationFields";
 import ProductClassificationEditor from "./ProductClassificationEditor";
+import ManualProductForm from "./ManualProductForm";
 import QuoteInbox from "./QuoteInbox";
+import OrderList from "./OrderList";
 import ContactSettings from "./ContactSettings";
 import { classificationLabel } from "../../packages/core/categories.mjs";
 import { importSummary } from "../../packages/core/imports.mjs";
@@ -26,6 +28,7 @@ const statusNames = {
   blocked: "Consulta bloqueada",
   rate_limited: "Límite del proveedor",
   incomplete: "Datos incompletos",
+  manual: "Producto manual",
   transient_error: "Error temporal",
   identity_review: "Variante por revisar",
   currency_review: "Moneda por revisar",
@@ -92,9 +95,12 @@ export default function AdminPanel({
     [busy, setBusy] = useState(""),
     [message, setMessage] = useState(""),
     [intelligence, setIntelligence] = useState({}),
+    [manualEdit, setManualEdit] = useState(null),
+    [manualKey, setManualKey] = useState(0),
     [failure, setFailure] = useState(false);
   const previewRef = useRef(null),
-    messageRef = useRef(null);
+    messageRef = useRef(null),
+    manualRef = useRef(null);
   const policy = edit
     ? Object.fromEntries(
         [
@@ -317,7 +323,9 @@ export default function AdminPanel({
           <p className="eyebrow">Tu tienda</p>
           <nav aria-label="Secciones del panel">
             <a href="#importar">Importar producto</a>
+            <a href="#nuevo-producto">Nuevo producto</a>
             <a href="#catalogo">Catálogo</a>
+            <a href="#pedidos">Pedidos</a>
             <a href="#cotizaciones">Cotizaciones</a>
             <a href="#configuracion">Configuración</a>
             <a href="#historial">Revisiones</a>
@@ -359,7 +367,10 @@ export default function AdminPanel({
               <div className="metric">
                 {
                   products.filter(
-                    (p) => p.sourceStatus && p.sourceStatus !== "ok",
+                    (p) =>
+                      p.sourceStatus &&
+                      p.sourceStatus !== "ok" &&
+                      p.source !== "manual",
                   ).length
                 }
               </div>
@@ -447,6 +458,29 @@ export default function AdminPanel({
               Costo o entrega no publicados quedan pendientes. Algunas páginas
               necesitan una API o un adaptador del proveedor.
             </p>
+          </section>
+          <section className="card" id="nuevo-producto" ref={manualRef}>
+            <h2>{manualEdit ? "Editar producto" : "Nuevo producto"}</h2>
+            <p className="muted">
+              Crea un producto con tus datos y fotos, sin enlace de proveedor.
+              El precio siempre es en pesos mexicanos e incluye IVA.
+            </p>
+            <ManualProductForm
+              key={manualEdit ? "editar-" + manualEdit.id : "nuevo-" + manualKey}
+              initial={manualEdit}
+              api={api}
+              onSaved={async (product, status) => {
+                setManualEdit(null);
+                setManualKey((old) => old + 1);
+                await refresh();
+                notify(
+                  status === "published"
+                    ? "Producto publicado en la tienda."
+                    : "Producto guardado como borrador.",
+                );
+              }}
+              onCancel={() => setManualEdit(null)}
+            />
           </section>
           <section className="card" aria-labelledby="pending-imports-title">
             <h2 id="pending-imports-title">Importaciones pendientes</h2>
@@ -734,10 +768,10 @@ export default function AdminPanel({
             </div>
             {!products.length && (
               <div className="card empty">
-                <h3>Tu primer producto empieza con un enlace</h3>
+                <h3>Tu primer producto empieza con un enlace o a mano</h3>
                 <p className="muted">
-                  Importa una ficha para ver aquí su precio, entrega y estado de
-                  revisión.
+                  Importa una ficha de proveedor o crea un producto manual
+                  para ver aquí su precio, entrega y estado.
                 </p>
               </div>
             )}
@@ -755,6 +789,9 @@ export default function AdminPanel({
                   >
                     {product.status === "published" ? "Publicado" : "Borrador"}
                   </span>
+                  {product.source === "manual" && (
+                    <span className="badge">Manual</span>
+                  )}
                 </div>
                 <ProductClassificationEditor
                   product={product}
@@ -801,14 +838,20 @@ export default function AdminPanel({
                   >
                     {statusNames[product.sourceStatus] || "Pendiente"}
                   </span>
-                  <a
-                    href={product.supplierUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-link"
-                  >
-                    Abrir proveedor
-                  </a>
+                  {product.supplierUrl ? (
+                    <a
+                      href={product.supplierUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-link"
+                    >
+                      Abrir proveedor
+                    </a>
+                  ) : (
+                    <span className="muted small">
+                      Creado manualmente en el panel
+                    </span>
+                  )}
                 </div>
                 <p className="muted small">
                   Última revisión: {date(product.lastCheckedAt)} · Próxima
@@ -828,27 +871,72 @@ export default function AdminPanel({
                   <p className="notice">{product.sourceMessage}</p>
                 )}
                 <div className="actions">
-                  <button
-                    className="btn ghost"
-                    disabled={Boolean(busy)}
-                    onClick={() =>
-                      perform("reimport", async () => {
-                        const result = await api("/api/supplier/import", {
-                          url: product.supplierUrl,
-                        });
-                        loadDraft(result.draft);
-                      })
-                    }
-                  >
-                    Revisar ficha
-                  </button>
-                  <button
-                    className="btn ghost"
-                    disabled={Boolean(busy)}
-                    onClick={() => history(product.id)}
-                  >
-                    Historial y alternativas
-                  </button>
+                  {product.source === "manual" && (
+                    <button
+                      className="btn ghost"
+                      disabled={Boolean(busy)}
+                      onClick={() => {
+                        setManualEdit(product);
+                        setTimeout(
+                          () =>
+                            manualRef.current?.scrollIntoView({
+                              behavior: window.matchMedia(
+                                "(prefers-reduced-motion: reduce)",
+                              ).matches
+                                ? "auto"
+                                : "smooth",
+                              block: "start",
+                            }),
+                          50,
+                        );
+                      }}
+                    >
+                      Editar producto
+                    </button>
+                  )}
+                  {product.source === "manual" &&
+                    product.status !== "published" && (
+                      <button
+                        className="btn ghost"
+                        disabled={Boolean(busy)}
+                        onClick={() =>
+                          perform("publish-manual", async () => {
+                            await api(`/api/products/${product.id}`, {
+                              status: "published",
+                            }, "PATCH");
+                            await refresh();
+                            notify("Producto publicado en la tienda.");
+                          })
+                        }
+                      >
+                        Publicar
+                      </button>
+                    )}
+                  {product.supplierUrl && (
+                    <button
+                      className="btn ghost"
+                      disabled={Boolean(busy)}
+                      onClick={() =>
+                        perform("reimport", async () => {
+                          const result = await api("/api/supplier/import", {
+                            url: product.supplierUrl,
+                          });
+                          loadDraft(result.draft);
+                        })
+                      }
+                    >
+                      Revisar ficha
+                    </button>
+                  )}
+                  {product.supplierUrl && (
+                    <button
+                      className="btn ghost"
+                      disabled={Boolean(busy)}
+                      onClick={() => history(product.id)}
+                    >
+                      Historial y alternativas
+                    </button>
+                  )}
                   {product.status === "published" && (
                     <button
                       className="btn ghost"
@@ -1019,6 +1107,7 @@ export default function AdminPanel({
               </article>
             ))}
           </section>
+          <OrderList />
           <QuoteInbox />
           <ContactSettings initialSettings={initialContactSettings} />
           <section className="card" id="historial">
