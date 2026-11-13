@@ -85,6 +85,20 @@ test(
         saved.id,
       );
       assert.equal((await orders.listOrders()).length, 1);
+      // El segundo guardado ejerce la rama ON CONFLICT (la que rompía el
+      // tipo del parámetro $3): conserva el createdAt original, actualiza
+      // el total y sigue habiendo un solo pedido.
+      const again = await orders.saveOrder({
+        ...paidOrder("cs_pg_1"),
+        id: saved.id,
+        createdAt: "2099-01-01T00:00:00.000Z",
+        totalCents: 39950,
+      });
+      assert.equal(again.id, saved.id);
+      assert.equal(again.totalCents, 39950);
+      assert.equal(again.createdAt, saved.createdAt);
+      assert.equal(typeof again.updatedAt, "string");
+      assert.equal((await orders.listOrders()).length, 1);
       assert.equal(await orders.hasStripeEvent("evt_pg_1"), false);
       assert.equal(
         await orders.recordStripeEvent("evt_pg_1", "checkout.session.completed"),

@@ -78,7 +78,7 @@ export class PostgresOrderRepository {
   async saveOrder(order) {
     await this.initialize();
     const { rows } = await this.pool.query(
-      "INSERT INTO souvenirs_orders(id,data) VALUES($1,$2::jsonb) ON CONFLICT(id) DO UPDATE SET data = excluded.data || jsonb_build_object('createdAt', souvenirs_orders.data->>'createdAt', 'updatedAt', $3) RETURNING data",
+      "INSERT INTO souvenirs_orders(id,data) VALUES($1,$2::jsonb) ON CONFLICT(id) DO UPDATE SET data = excluded.data || jsonb_build_object('createdAt', souvenirs_orders.data->>'createdAt', 'updatedAt', $3::text) RETURNING data",
       [order.id, JSON.stringify(order), new Date().toISOString()],
     );
     return rows[0].data;
