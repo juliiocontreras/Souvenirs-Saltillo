@@ -14,6 +14,8 @@ export default function Icon({ name, size = 24, ...props }) {
     ),
     arrow: <path d="M3 12h17M14 6l6 6-6 6" />,
     chevron: <path d="m6 9 6 6 6-6" />,
+    "chevron-left": <path d="m15 6-6 6 6 6" />,
+    "chevron-right": <path d="m9 6 6 6-6 6" />,
     close: <path d="m6 6 12 12M6 18 18 6" />,
     menu: <path d="M4 6h16M4 12h16M4 18h16" />,
     chat: (
@@ -79,10 +81,14 @@ export function Wordmark({ footer = false }) {
     >
       <img
         className="sf-logo"
-        src="/images/souvenirs-saltillo-logo.webp"
+        src={
+          footer
+            ? "/images/souvenirs-saltillo-logo-white.webp"
+            : "/images/souvenirs-saltillo-logo.webp"
+        }
         alt="Souvenirs Saltillo"
-        width="665"
-        height="221"
+        width={footer ? "2169" : "665"}
+        height={footer ? "725" : "221"}
       />
     </a>
   );

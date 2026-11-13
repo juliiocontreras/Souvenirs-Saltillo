@@ -1,6 +1,9 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
 import Icon from "./Icons";
 import { ProductImage } from "./Dialogs";
 import {
+  PRODUCT_CATEGORIES,
   classificationLabel,
   subcategoriesFor,
 } from "../../../packages/core/categories.mjs";
@@ -40,6 +43,27 @@ export default function Catalog({
     category,
     subcategory,
   });
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    function closeOutside(event) {
+      if (!menuRef.current?.contains(event.target)) setMenuOpen(false);
+    }
+    function escape(event) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [menuOpen]);
+  function chooseCategory(name) {
+    onCategory(name);
+    setMenuOpen(false);
+  }
   return (
     <section
       className="sf-catalog sf-container"
@@ -97,18 +121,51 @@ export default function Catalog({
             )}
           </select>
         </label>
-        <div className="sf-category-tabs" role="group" aria-label="Categorías">
-          {STORE_CATEGORIES.map((name) => (
-            <button
-              type="button"
-              key={name}
-              aria-pressed={category === name}
-              className={category === name ? "is-active" : ""}
-              onClick={() => onCategory(name)}
+        <div className="sf-category-menu" ref={menuRef}>
+          <button
+            type="button"
+            className="sf-category-menu-button"
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {category === "Todos" ? "Categorías" : category}
+            <Icon name="chevron" size={14} />
+          </button>
+          {menuOpen && (
+            <div
+              className="sf-category-panel"
+              role="menu"
+              aria-label="Categorías"
             >
-              {name}
-            </button>
-          ))}
+              <button
+                type="button"
+                role="menuitem"
+                className={
+                  "sf-category-all" + (category === "Todos" ? " is-active" : "")
+                }
+                aria-current={category === "Todos" ? true : undefined}
+                onClick={() => chooseCategory("Todos")}
+              >
+                <span>Ver todo el catálogo</span>
+              </button>
+              {PRODUCT_CATEGORIES.map(({ name, subcategories }) => (
+                <button
+                  type="button"
+                  role="menuitem"
+                  key={name}
+                  className={category === name ? "is-active" : ""}
+                  aria-current={category === name ? true : undefined}
+                  onClick={() => chooseCategory(name)}
+                >
+                  <span>{name}</span>
+                  {subcategories.length > 0 && (
+                    <small>{subcategories.join(", ")}</small>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <label className="sf-sort">
           <span className="sr-only">Ordenar productos</span>

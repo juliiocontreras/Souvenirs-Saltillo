@@ -1,19 +1,120 @@
+"use client";
+import { useEffect, useState } from "react";
 import Icon, { Wordmark } from "./Icons";
 import { categoryHref } from "../../../packages/core/storefront.mjs";
 import { PRODUCT_CATEGORY_NAMES } from "../../../packages/core/categories.mjs";
 import { whatsappContactUrl } from "../../../packages/core/contact.mjs";
+const heroSlides = [
+  {
+    src: "/images/backpack-hero.webp",
+    alt: "Mochila beige con correas verde olivo y un sol bordado en dorado.",
+    width: 2172,
+    height: 724,
+  },
+  {
+    src: "/images/hero-slide-mug.webp",
+    alt: "Persona tomando de una taza beige con banda oliva y sol dorado.",
+    width: 2736,
+    height: 912,
+  },
+  {
+    src: "/images/hero-slide-tee.webp",
+    alt: "Persona con playera crema bordada y gorra beige.",
+    width: 2736,
+    height: 912,
+  },
+  {
+    src: "/images/hero-slide-giftset.webp",
+    alt: "Persona ofreciendo una caja de regalo con listón oliva y una bolsa de tela con sol dorado.",
+    width: 2736,
+    height: 912,
+  },
+];
 export function Hero({ onCategory }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const total = heroSlides.length;
+  useEffect(() => {
+    if (paused) return;
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    const timer = window.setInterval(() => {
+      if (document.hidden) return;
+      setIndex((current) => (current + 1) % total);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [paused, total]);
+  const goTo = (next) => setIndex(((next % total) + total) % total);
   return (
     <>
-      <section className="sf-hero" aria-labelledby="hero-title">
-        <img
-          className="sf-hero-photo"
-          src="/images/backpack-hero.webp"
-          alt="Mochila beige con correas verde olivo y un sol bordado en dorado."
-          width="2172"
-          height="724"
-          fetchPriority="high"
-        />
+      <section
+        className="sf-hero"
+        aria-labelledby="hero-title"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
+      >
+        <div
+          className="sf-hero-slides"
+          aria-roledescription="carrusel"
+          aria-label="Souvenirs destacados"
+        >
+          {heroSlides.map((slide, slideIndex) => (
+            <img
+              key={slide.src}
+              className={
+                "sf-hero-photo" + (slideIndex === index ? " is-active" : "")
+              }
+              src={slide.src}
+              alt={slide.alt}
+              width={slide.width}
+              height={slide.height}
+              fetchPriority={slideIndex === 0 ? "high" : undefined}
+              loading={slideIndex === 0 ? undefined : "lazy"}
+              aria-hidden={slideIndex === index ? undefined : true}
+            />
+          ))}
+          <div className="sf-hero-controls">
+            <button
+              type="button"
+              className="sf-hero-arrow"
+              aria-label="Diapositiva anterior"
+              onClick={() => goTo(index - 1)}
+            >
+              <Icon name="chevron-left" size={20} />
+            </button>
+            <div
+              className="sf-hero-dots"
+              role="group"
+              aria-label="Elegir diapositiva"
+            >
+              {heroSlides.map((slide, slideIndex) => (
+                <button
+                  key={slide.src}
+                  type="button"
+                  className={
+                    "sf-hero-dot" +
+                    (slideIndex === index ? " is-active" : "")
+                  }
+                  aria-label={`Ir a la diapositiva ${slideIndex + 1} de ${total}`}
+                  aria-current={slideIndex === index ? true : undefined}
+                  onClick={() => goTo(slideIndex)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="sf-hero-arrow"
+              aria-label="Diapositiva siguiente"
+              onClick={() => goTo(index + 1)}
+            >
+              <Icon name="chevron-right" size={20} />
+            </button>
+          </div>
+        </div>
         <div className="sf-container sf-hero-inner">
           <div className="sf-hero-copy">
             <h1 id="hero-title">
@@ -208,7 +309,8 @@ export function Footer({ onCategory, onFaq, whatsappNumber = "" }) {
           </div>
           <nav aria-label="Explora la tienda">
             <h3>Explora</h3>
-            {["Todos", ...PRODUCT_CATEGORY_NAMES].map((category) => (
+            <div className="sf-footer-links">
+              {["Todos", ...PRODUCT_CATEGORY_NAMES].map((category) => (
                 <a
                   key={category}
                   href={categoryHref(category)}
@@ -216,8 +318,8 @@ export function Footer({ onCategory, onFaq, whatsappNumber = "" }) {
                 >
                   {category === "Todos" ? "Catálogo" : category}
                 </a>
-              ),
-            )}
+              ))}
+            </div>
           </nav>
           <nav aria-label="Información para tu visita">
             <h3>Tu visita</h3>

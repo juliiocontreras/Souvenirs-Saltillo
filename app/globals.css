@@ -5,6 +5,13 @@
 }
 * {
   box-sizing: border-box;
+  /* Sin barras de desplazamiento visibles (regla global): el scroll sigue
+     funcionando con rueda, táctil y teclado; solo se oculta la barra. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
 }
 body {
   margin: 0;
