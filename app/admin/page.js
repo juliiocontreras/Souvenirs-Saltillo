@@ -11,13 +11,15 @@ export default async function Admin() {
   const jar = await cookies(),
     session = await tokenSession(jar.get(SESSION_COOKIE)?.value);
   if (!session) redirect("/login");
-  const [products, runs, searchState, contact, imports] = await Promise.all([
-    catalogRepository.listProducts(),
-    catalogRepository.listRuns(),
-    searchSummary(catalogRepository),
-    contactSettings(),
-    catalogRepository.listPendingImports(),
-  ]);
+  const [products, runs, searchState, contact, imports, queue] =
+    await Promise.all([
+      catalogRepository.listProducts(),
+      catalogRepository.listRuns(),
+      searchSummary(catalogRepository),
+      contactSettings(),
+      catalogRepository.listPendingImports(),
+      catalogRepository.listQueuedImports(),
+    ]);
   return (
     <AdminPanel
       initialProducts={products}
@@ -27,6 +29,7 @@ export default async function Admin() {
       initialSearchState={searchState}
       initialContactSettings={contact}
       initialImports={imports}
+      initialQueue={queue}
     />
   );
 }

@@ -146,6 +146,32 @@ export class CatalogRepository {
       .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))
       .map(importSummary);
   }
+  async listDrafts() {
+    return Object.values((await this.read()).drafts).sort((a, b) =>
+      (b.createdAt || "").localeCompare(a.createdAt || ""),
+    );
+  }
+  // Cola de importación por lotes: borradores con status "queued", del más
+  // antiguo al más reciente, con solo los campos que muestra el panel.
+  async listQueuedImports() {
+    return Object.values((await this.read()).drafts)
+      .filter((draft) => draft.status === "queued")
+      .sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || ""))
+      .map((draft) => ({
+        id: draft.id,
+        sourceUrl: draft.sourceUrl,
+        status: "queued",
+        attempts: draft.attempts || 0,
+        lastError: draft.lastError || null,
+        failedAt: draft.failedAt || null,
+        createdAt: draft.createdAt,
+      }));
+  }
+  async deleteDraft(id) {
+    return this.mutate((state) => {
+      delete state.drafts[id];
+    });
+  }
   async getSession(hash) {
     return (await this.read()).sessions[hash] || null;
   }

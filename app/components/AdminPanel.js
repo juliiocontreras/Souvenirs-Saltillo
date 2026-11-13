@@ -81,8 +81,12 @@ export default function AdminPanel({
   monitorConfigured,
   initialContactSettings,
   initialImports = [],
+  initialQueue = [],
 }) {
   const [pendingImports, setPendingImports] = useState(initialImports);
+  const [queue, setQueue] = useState(initialQueue);
+  const [batchReport, setBatchReport] = useState(null);
+  const [batchProgress, setBatchProgress] = useState("");
   const [reviewedCandidates, setReviewedCandidates] = useState({});
   const [searchState, setSearchState] = useState(initialSearchState);
   const [products, setProducts] = useState(initialProducts),
@@ -119,15 +123,17 @@ export default function AdminPanel({
     setMessage(text);
   }
   async function refresh() {
-    const [catalog, state, inbox] = await Promise.all([
+    const [catalog, state, inbox, batch] = await Promise.all([
       api("/api/products?scope=admin", null, "GET"),
       api("/api/supplier/runs", null, "GET"),
       api("/api/supplier/import", null, "GET"),
+      api("/api/supplier/import/batch", null, "GET"),
     ]);
     setProducts(catalog.products);
     setRuns(state.runs);
     setSearchState(state.searchState);
     setPendingImports(inbox.imports);
+    setQueue(batch.queue);
     const openIds = Object.keys(intelligence);
     if (openIds.length) {
       const fresh = await Promise.all(
@@ -177,6 +183,37 @@ export default function AdminPanel({
         }),
       50,
     );
+  }
+  // Procesa la cola de uno en uno, con llamadas sucesivas sin bloquear la
+  // página. Cada enlace listo pasa a Importaciones pendientes; los que
+  // fallan quedan en la cola con su error para reintentarse aparte.
+  async function processQueue() {
+    await perform("batch-process", async () => {
+      let done = 0,
+        failed = 0;
+      for (;;) {
+        const result = await api("/api/supplier/import/batch/next", {});
+        if (result.status === "empty") break;
+        if (result.status === "done") done++;
+        else failed++;
+        setBatchProgress(
+          `Procesando… ${done} listos para revisar, ${failed} con error.`,
+        );
+        const [inbox, batch] = await Promise.all([
+          api("/api/supplier/import", null, "GET"),
+          api("/api/supplier/import/batch", null, "GET"),
+        ]);
+        setPendingImports(inbox.imports);
+        setQueue(batch.queue);
+      }
+      setBatchProgress("");
+      await refresh();
+      notify(
+        failed
+          ? `Cola procesada: ${done} listos para revisar y ${failed} con error. Revisa los enlaces con error.`
+          : `Cola procesada: ${done} listos para revisar en Importaciones pendientes.`,
+      );
+    });
   }
   useEffect(() => {
     if (!edit) {
@@ -458,6 +495,160 @@ export default function AdminPanel({
               Costo o entrega no publicados quedan pendientes. Algunas páginas
               necesitan una API o un adaptador del proveedor.
             </p>
+            <form
+              className="supplier"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const form = event.currentTarget,
+                  urls = new FormData(form).get("urls");
+                perform("batch-enqueue", async () => {
+                  const result = await api("/api/supplier/import/batch", {
+                    urls: String(urls || "").split("\n"),
+                  });
+                  setBatchReport(result);
+                  form.reset();
+                  await refresh();
+                  notify(
+                    `Lote agregado: ${result.queuedCount} en cola` +
+                      (result.duplicateCount
+                        ? `, ${result.duplicateCount} duplicados omitidos`
+                        : "") +
+                      (result.invalidCount
+                        ? `, ${result.invalidCount} inválidos`
+                        : "") +
+                      ".",
+                  );
+                });
+              }}
+              aria-busy={busy === "batch-enqueue"}
+            >
+              <label className="field">
+                Importar por lotes
+                <textarea
+                  name="urls"
+                  rows={5}
+                  required
+                  placeholder={
+                    "https://proveedor.com/producto-1\nhttps://proveedor.com/producto-2"
+                  }
+                />
+              </label>
+              <p className="muted small">
+                Un enlace por línea, hasta 20 por lote. Los duplicados y los
+                enlaces inválidos se omiten y se indican abajo.
+              </p>
+              <button className="btn" disabled={Boolean(busy)}>
+                {busy === "batch-enqueue" ? "Agregando…" : "Agregar a la cola"}
+              </button>
+            </form>
+            {batchReport &&
+              (batchReport.duplicates.length > 0 ||
+                batchReport.invalid.length > 0) && (
+                <ul className="muted small">
+                  {batchReport.duplicates.map((entry) => (
+                    <li key={"dup-" + entry.url}>
+                      {entry.url}: {entry.reason}
+                    </li>
+                  ))}
+                  {batchReport.invalid.map((entry) => (
+                    <li key={"inv-" + entry.url}>
+                      {entry.url}: {entry.reason}
+                    </li>
+                  ))}
+                </ul>
+              )}
+          </section>
+          <section className="card" aria-labelledby="batch-queue-title">
+            <h2 id="batch-queue-title">Cola de importación por lotes</h2>
+            <p className="muted small">
+              Los enlaces se procesan de uno en uno, con el mismo análisis que
+              la importación individual. Al terminar, cada ficha queda en
+              Importaciones pendientes para revisarla y publicarla.
+            </p>
+            {batchProgress && (
+              <p className="muted" role="status">
+                {batchProgress}
+              </p>
+            )}
+            {queue.length === 0 ? (
+              <p className="muted">No hay enlaces en la cola.</p>
+            ) : (
+              <>
+                <ul className="pending-imports">
+                  {queue.map((item) => (
+                    <li key={item.id}>
+                      <div>
+                        <strong className="small">{item.sourceUrl}</strong>
+                        <p className="muted small">
+                          En cola desde: {date(item.createdAt)}
+                          {item.attempts
+                            ? ` · Intentos: ${item.attempts}`
+                            : ""}
+                        </p>
+                        {item.lastError && (
+                          <p className="small">Error: {item.lastError}</p>
+                        )}
+                      </div>
+                      <div>
+                        {item.lastError && (
+                          <button
+                            type="button"
+                            className="btn ghost"
+                            disabled={Boolean(busy)}
+                            onClick={() =>
+                              perform("batch-retry-" + item.id, async () => {
+                                const result = await api(
+                                  `/api/supplier/import/batch/${encodeURIComponent(item.id)}/retry`,
+                                  {},
+                                );
+                                await refresh();
+                                notify(
+                                  result.status === "done"
+                                    ? "Enlace importado. Revisa su ficha en Importaciones pendientes."
+                                    : `No se pudo importar: ${result.error}`,
+                                );
+                              })
+                            }
+                          >
+                            {busy === "batch-retry-" + item.id
+                              ? "Reintentando…"
+                              : "Reintentar"}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn ghost"
+                          disabled={Boolean(busy)}
+                          onClick={() =>
+                            perform("batch-remove-" + item.id, async () => {
+                              await api(
+                                `/api/supplier/import/batch/${encodeURIComponent(item.id)}/remove`,
+                                {},
+                              );
+                              await refresh();
+                              notify("Enlace quitado de la cola.");
+                            })
+                          }
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={
+                    Boolean(busy) ||
+                    !queue.some((item) => !item.lastError)
+                  }
+                  onClick={processQueue}
+                >
+                  {busy === "batch-process" ? "Procesando…" : "Procesar cola"}
+                </button>
+              </>
+            )}
           </section>
           <section className="card" id="nuevo-producto" ref={manualRef}>
             <h2>{manualEdit ? "Editar producto" : "Nuevo producto"}</h2>

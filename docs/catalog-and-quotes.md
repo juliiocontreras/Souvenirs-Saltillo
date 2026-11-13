@@ -39,6 +39,40 @@ Validación en `packages/core/manual-products.mjs`, servicio en
 `lib/catalog-service.mjs` (`createManualProduct`, `updateManualProduct`) y
 fotos en `packages/core/product-images.mjs` + `lib/product-images.mjs`.
 
+## Importación por lotes
+
+El panel incluye **Importar por lotes** en la sección de importación: se
+pegan varios enlaces (uno por línea, hasta 20 por lote) y se agregan a una
+**cola** con **Agregar a la cola**. Cada enlace se valida como en la
+importación individual y se indica el motivo cuando se omite: enlace
+inválido, duplicado dentro del lote, ya en la cola, con ficha pendiente de
+revisión o ya importado en el catálogo.
+
+**Procesar cola** procesa los enlaces de uno en uno, con el mismo análisis
+que la importación individual (foto, descripción, precio y entrega, con el
+margen configurado) y el mismo lease (solo una importación a la vez). Cada
+ficha lista pasa a **Importaciones pendientes** para revisarla y publicarla
+con el flujo existente; la revisión y publicación siguen siendo manuales por
+producto. Un enlace que falla queda en la cola con su error y se puede
+**Reintentar** sin duplicar, o **Quitar** de la cola. Los enlaces con error
+no bloquean la cola: el procesado sigue con el siguiente sin error.
+
+La cola se guarda en la base de la tienda como borradores con estado
+`queued` (solo la URL), así que sobrevive a cerrar o recargar el panel. Los
+borradores en total (cola + fichas pendientes) se conservan hasta 100
+recientes.
+
+**API:** `GET /api/supplier/import/batch` lista la cola y `POST
+/api/supplier/import/batch` con `{ urls: [...] }` la alimenta (solo admin
+con escritura; devuelve encolados, duplicados e inválidos con su motivo);
+`POST /api/supplier/import/batch/next` procesa el enlace encolado más
+antiguo sin error; `POST /api/supplier/import/batch/[id]/retry` reintenta
+un enlace con error y `POST /api/supplier/import/batch/[id]/remove` lo
+quita. Servicio en `lib/catalog-service.mjs` (`enqueueBatchImports`,
+`processBatchItem`, `processNextBatchItem`, `removeBatchItem`, tope
+`MAX_BATCH_URLS = 20`) y cola en `packages/core/repository.mjs`
+(`listQueuedImports`, `deleteDraft`).
+
 ## Recuperar importaciones
 
 El panel incluye **Importaciones pendientes**, con las fichas extraídas que aún
